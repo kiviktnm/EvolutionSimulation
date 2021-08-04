@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="**\*.xaml.cs">
+      <DependentUpon>%(Filename)</DependentUpon>
+    </Compile>
+    <AvaloniaResource Include="**\*.xaml">
+      <SubType>Designer</SubType>
+    </AvaloniaResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Simulations2D\src\Windore.Simulations2D\Windore.Simulations2D.csproj" />
+    <ProjectReference Include="..\..\Simulations2D\src\Windore.Simulations2D.GUI\Windore.Simulations2D.GUI.csproj" />
+    <ProjectReference Include="..\..\Settings-v2\src\Windore.Settings.Base\Windore.Settings.Base.csproj" />
+    <ProjectReference Include="..\..\Settings-v2\src\Windore.Settings.GUI\Windore.Settings.GUI.csproj" />
+  </ItemGroup>
+
+</Project>
