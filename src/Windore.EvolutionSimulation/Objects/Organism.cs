@@ -1,5 +1,6 @@
 using System;
 using Windore.Simulations2D;
+using Windore.Simulations2D.Data;
 using Windore.Simulations2D.Util;
 using Windore.Simulations2D.Util.SMath;
 
@@ -39,14 +40,18 @@ namespace Windore.EvolutionSimulation.Objects
                 }
             }
         }
-        public double EnergyStoringCapacity { get => CurrentSize * 10; }
+        public double EnergyStoringCapacity { get => CurrentSize * 3; }
         public abstract double MaxSize { get; }
         public abstract double EnergyConsumption { get; }
         public abstract double EnergyProduction { get; }
 
+        [DataPoint("Age")]
+        public int Age { get; private set; } = 1;
+
         protected abstract void Reproduce();
         protected void BasicUpdate(double growthRate, double backupEnergy, double reproductionEnergy) 
         {
+            Age++;
             CurrentEnergy += EnergyProduction - EnergyConsumption;
             double extraEnergy = CurrentEnergy - (EnergyStoringCapacity * backupEnergy);
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Windore.Simulations2D;
+using Windore.Simulations2D.Data;
 using Windore.Simulations2D.Util;
 using Windore.Simulations2D.Util.SMath;
 
@@ -16,19 +17,19 @@ namespace Windore.EvolutionSimulation.Objects
 
         public override double EnergyConsumption
         {
-            get => 0.1d * CurrentSize
+            get => 0.5d * CurrentSize
                 + Properties.Toxicity.Value * CurrentSize
                 + Properties.EnvironmentToxicityResistance.Value / 2
-                + Properties.TemperatureChangeResistance.Value / 2 * CurrentSize
+                + Properties.TemperatureChangeResistance.Value / 2 * (CurrentSize / 2d)
                 + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentToxicityResistance.Value)
-                + Math.Abs(Properties.OptimalTemperature.Value - Environment.Temperature.Value) / Properties.TemperatureChangeResistance.Value * CurrentSize;
+                + Math.Abs(Properties.OptimalTemperature.Value - Environment.Temperature.Value) / Properties.TemperatureChangeResistance.Value * (CurrentSize / 2d);
         }
 
         public override double EnergyProduction
         {
             get
             {
-                double baseProduction = Math.Abs(Properties.EnergyProductionInLowNutrientGrounds.Value - Environment.GroundNutrientContent.Value) * CurrentSize;
+                double baseProduction = Math.Abs(Properties.EnergyProductionInLowNutrientGrounds.Value - Environment.GroundNutrientContent.Value) / 3d * CurrentSize;
                 double production = baseProduction;
 
                 foreach (Plant plant in GetSimulationObjectsInRange(CurrentSize * 4).Where(obj => obj is Plant)) 
@@ -38,7 +39,7 @@ namespace Windore.EvolutionSimulation.Objects
 
                     distance = SMath.Clamp(distance, 0.0001d, Math.Abs(distance));
 
-                    production -= baseProduction / 20d / distance;
+                    production -= baseProduction / 40d / distance;
                 }
 
                 return production;
@@ -55,15 +56,15 @@ namespace Windore.EvolutionSimulation.Objects
 
         public override void Update()
         {
-            BasicUpdate(Properties.GrowthRate.Value, Properties.BackupEnergy.Value / 100d, Properties.ReproductionEnergy.Value / 100d);
+            BasicUpdate(new Percentage(Properties.GrowthRate.Value), new Percentage(Properties.BackupEnergy.Value), new Percentage(Properties.ReproductionEnergy.Value));
         }
 
         protected override void Reproduce()
         {
-            CurrentEnergy -= Properties.ReproductionEnergy.Value;
+            CurrentEnergy -= new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity;
 
             // 20% of energy is lost in reproduction
-            double actualReproductionEnergy = Properties.ReproductionEnergy.Value - Properties.ReproductionEnergy.Value * 0.2;
+            double actualReproductionEnergy = new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity - new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity * 0.2d;
 
             // Get the integer part of the OffspringAmount
             int offspringAmount = (int)Math.Floor(Properties.OffspringAmount.Value);
@@ -78,7 +79,7 @@ namespace Windore.EvolutionSimulation.Objects
 
             for (int i = 0; i < offspringAmount; i++)
             {
-                // Bruteforce a position within an environment
+                // Bruteforce a position within an environment and one that is not within the parent plant
                 Point pos;
                 do
                 {

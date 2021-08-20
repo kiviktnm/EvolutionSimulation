@@ -9,11 +9,14 @@ namespace Windore.EvolutionSimulation.Objects
 {
     public class Environment : SimulationObject
     {
+        public string Name { get; set; }
         public ChangingVariable Toxicity { get; set; }
         public ChangingVariable Temperature { get; set; }
         public ChangingVariable GroundNutrientContent { get; set; }
 
+        [DataPoint("EnvironvementAnimalAmount")]
         public int AnimalAmount { get => 0; }
+        [DataPoint("EnvironvementPlantAmount")]
         public int PlantAmount { get => ObjectsCurrentlyInEnv.Where(obj => obj is Plant).Count(); }
 
         // These properties exist just for data collection.
@@ -25,7 +28,6 @@ namespace Windore.EvolutionSimulation.Objects
         public double GroundNutrientContentDC { get => GroundNutrientContent.Value; }
 
         public Dictionary<string, DataCollector.Data> PlantsData { get; set; } = new Dictionary<string, DataCollector.Data>();
-
 
         public List<SimulationObject> ObjectsCurrentlyInEnv { get; set; } = new List<SimulationObject>();
 

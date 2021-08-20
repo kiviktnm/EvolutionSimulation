@@ -7,6 +7,9 @@ using System.Linq;
 using Avalonia.Controls;
 using System.Collections.Generic;
 using System.IO;
+using Windore.Simulations2D.GUI;
+using Avalonia.Threading;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace Windore.EvolutionSimulation 
 {
@@ -20,10 +23,12 @@ namespace Windore.EvolutionSimulation
         public Objects.Environment Env2 { get; private set; }
         public Objects.Environment Env3 { get; private set; }
 
+        public DataWindowManager DataWindowManager { get; } = new DataWindowManager();
+
         private Objects.Environment[] Envs => new Objects.Environment[]{ Env1, Env2, Env3 };
 
-        [DataPoint("Age")]
-        public ulong Age { get => SimulationScene.Age; }
+        [DataPoint("Duration")]
+        public ulong Duration { get => SimulationScene.Age; }
 
         [DataPoint("PlantAmount")]
         public int PlantAmount { get => SimulationScene.SimulationObjects.Where(obj => obj is Plant).Count(); }
@@ -53,8 +58,11 @@ namespace Windore.EvolutionSimulation
                     case Plant plnt:
                         panel.Children.Add(new TextBlock { Text = "Plant", Margin = new Avalonia.Thickness(5, 5, 5, 0), FontSize = 16, FontWeight = Avalonia.Media.FontWeight.Bold });
                         panel.Children.Add(NewSelectedPanelText($"Current Energy: {Math.Round(plnt.CurrentEnergy, 3)}"));
-                        panel.Children.Add(NewSelectedPanelText($"Current Size: {Math.Round(plnt.CurrentSize, 3)}"));
+                        panel.Children.Add(NewSelectedPanelText($"Energy Production: {Math.Round(plnt.EnergyProduction, 3)}"));
+                        panel.Children.Add(NewSelectedPanelText($"Energy Consumption: {Math.Round(plnt.EnergyConsumption, 3)}"));
                         panel.Children.Add(NewSelectedPanelText($"Energy Storing Capacity: {Math.Round(plnt.EnergyStoringCapacity, 3)}"));
+                        panel.Children.Add(NewSelectedPanelText($"Current Size: {Math.Round(plnt.CurrentSize, 3)}"));
+                        panel.Children.Add(NewSelectedPanelText($"Current Age: {plnt.Age}"));
 
                         foreach (KeyValuePair<string, Property> pair in plnt.Properties.Properties)
                         {
@@ -81,6 +89,11 @@ namespace Windore.EvolutionSimulation
                             Margin = new Avalonia.Thickness(5),
                             Height = 30,
                             Content = "Open Env Animals Panel"
+                        };
+
+                        plantPanelBtn.Click += (_, __) =>
+                        {
+                            DataWindowManager.OpenWindow(env.PlantsData, $"{env.Name} Environment Plants");
                         };
 
                         panel.Children.Add(plantPanelBtn);
@@ -117,28 +130,40 @@ namespace Windore.EvolutionSimulation
 
         protected override void AfterUpdate()
         {
-
+            if (SimulationScene.Age % 200 == 0) 
+            {
+                Log();
+            }
         }
 
         public void SetUpEnvs() 
         {
             double envSize = (SimulationScene.Width + SimulationScene.Height) / 2d * 0.415d;
 
-            Env1 = new Objects.Environment(new Point(SimulationScene.Width * 0.25, SimulationScene.Height * 0.33), envSize);
-            Env2 = new Objects.Environment(new Point(SimulationScene.Width * 0.75, SimulationScene.Height * 0.33), envSize);
-            Env3 = new Objects.Environment(new Point(SimulationScene.Width * 0.50, SimulationScene.Height * 0.66), envSize);
+            Env1 = new Objects.Environment(new Point(SimulationScene.Width * 0.25, SimulationScene.Height * 0.33), envSize)
+            {
+                Toxicity = new ChangingVariable(0, 0, 0, 0, baseEnvToxicity),
+                Temperature = new ChangingVariable(0, 0, 0, 0, baseEnvTemperature),
+                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, baseEnvGroundNutrientContent),
+                Name = "Normal"
+            };
 
-            Env1.Toxicity = new ChangingVariable(0, 0, 0, 0, baseEnvToxicity);
-            Env1.Temperature = new ChangingVariable(0, 0, 0, 0, baseEnvTemperature);
-            Env1.GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, baseEnvGroundNutrientContent);
+            Env2 = new Objects.Environment(new Point(SimulationScene.Width * 0.75, SimulationScene.Height * 0.33), envSize)
+            {
+                Toxicity = new ChangingVariable(0, 0, 0, 0, baseEnvToxicity),
+                Temperature = new ChangingVariable(10, 0, 10, 0, baseEnvTemperature),
+                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, baseEnvGroundNutrientContent),
+                Name = "Temperature"
+                
+            };
 
-            Env2.Toxicity = new ChangingVariable(0, 0, 0, 0, baseEnvToxicity);
-            Env2.Temperature = new ChangingVariable(0, 0, 0, 0, baseEnvTemperature);
-            Env2.GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, baseEnvGroundNutrientContent);
-
-            Env3.Toxicity = new ChangingVariable(0, 0, 0, 0, baseEnvToxicity);
-            Env3.Temperature = new ChangingVariable(0, 0, 0, 0, baseEnvTemperature);
-            Env3.GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, baseEnvGroundNutrientContent);
+            Env3 = new Objects.Environment(new Point(SimulationScene.Width * 0.50, SimulationScene.Height * 0.66), envSize)
+            {
+                Toxicity = new ChangingVariable(0, 0, 0, 0, baseEnvToxicity),
+                Temperature = new ChangingVariable(0, 0, 0, 0, baseEnvTemperature),
+                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, baseEnvGroundNutrientContent),
+                Name = "Toxicity"
+            };
 
             SimulationScene.AddAll(Env1, Env2, Env3);
         }
@@ -172,6 +197,12 @@ namespace Windore.EvolutionSimulation
                 .Select(plant => plant.Properties)
             ).ToList().ForEach(obj => PlantsData.Add(obj.Key, obj.Value));
 
+            collector.CollectData(
+                SimulationScene.SimulationObjects
+                .Where(obj => obj is Plant)
+                .Select(obj => (Organism)obj)
+            ).ToList().ForEach(obj => PlantsData.Add(obj.Key, obj.Value));
+
             collector.CollectSingleValueData(this).ToList().ForEach(obj => PlantsData.Add(obj.Key, obj.Value));
 
             loggers["AllPlants"].Log(PlantsData);
@@ -182,10 +213,16 @@ namespace Windore.EvolutionSimulation
                 env.PlantsData.Clear();
 
                 collector.CollectData(
-                    SimulationScene.SimulationObjects
+                    env.ObjectsCurrentlyInEnv
                     .Where(obj => obj is Plant)
                     .Select(obj => (Plant)obj)
                     .Select(plant => plant.Properties)
+                ).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
+
+                collector.CollectData(
+                    env.ObjectsCurrentlyInEnv
+                    .Where(obj => obj is Plant)
+                    .Select(obj => (Organism)obj)
                 ).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
 
                 collector.CollectSingleValueData(this).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
@@ -205,9 +242,10 @@ namespace Windore.EvolutionSimulation
 
             plantTitles.AddRange(collector.GetTypeDataPointTitles(typeof(Objects.Environment)));
 
-            loggers["Env1Plants"] = new FileLogger(Path.Combine(SimulationSettings.Instance.SimulationLogDirectory, "env1-plants"), plantTitles.ToArray());
-            loggers["Env2Plants"] = new FileLogger(Path.Combine(SimulationSettings.Instance.SimulationLogDirectory, "env2-plants"), plantTitles.ToArray());
-            loggers["Env3Plants"] = new FileLogger(Path.Combine(SimulationSettings.Instance.SimulationLogDirectory, "env3-plants"), plantTitles.ToArray());
+            for(int i = 1; i <= Envs.Length; i++)
+            {
+                loggers[$"Env{i}Plants"] = new FileLogger(Path.Combine(SimulationSettings.Instance.SimulationLogDirectory, $"env{i}-plants"), plantTitles.ToArray());
+            }
         }
     }
 }

@@ -30,8 +30,12 @@ namespace Windore.EvolutionSimulation
         private void OnStartBtnClick(object sender, RoutedEventArgs e) 
         {
             simWindow = new SimulationWindow(SimulationSettings.Instance.SimulationManager);
+            SimulationSettings.Instance.InitSimulation();
+
             simWindow.SidePanelWidth = 250;
             simWindow.Show();
+
+            simWindow.Closed += (_, __) => SimulationSettings.Instance.SimulationManager.DataWindowManager.CloseWindows();
 
             DispatcherTimer timer = new DispatcherTimer
             {
@@ -79,8 +83,11 @@ namespace Windore.EvolutionSimulation
                 Content = "Open All Animals Panel"
             };
 
-            plantPanelBtn.Click += (_, __) => OpenPlantPanel();
-            animalPanelBtn.Click += (_, __) => OpenAnimalPanel();
+            plantPanelBtn.Click += (_, __) => 
+            {
+                SimulationSettings.Instance.SimulationManager.DataWindowManager.OpenWindow(SimulationSettings.Instance.SimulationManager.PlantsData, "All Plants");
+            };
+            animalPanelBtn.Click += (_, __) => { };
 
             btnsPanel.Children.Add(plantPanelBtn);
             btnsPanel.Children.Add(animalPanelBtn);
@@ -88,14 +95,6 @@ namespace Windore.EvolutionSimulation
             simWindow.AddSidePanelContent(btnsPanel);
 
             simWindow.AddSidePanelContent(SimulationSettings.Instance.SimulationManager.SelectedObjectPanel);
-        }
-
-        private void OpenPlantPanel() 
-        {
-        }
-
-        private void OpenAnimalPanel() 
-        {
         }
     }
 }

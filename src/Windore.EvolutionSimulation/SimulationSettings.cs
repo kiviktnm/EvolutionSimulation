@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Windore.EvolutionSimulation.Objects;
@@ -13,25 +14,26 @@ namespace Windore.EvolutionSimulation
     {
         [Setting("Simulation Area Side Length", "General")]
         [DoubleSettingValueLimits(100, 2000)]
-        public double SimulationSceneSideLength { get; set; } = 10_000;
+        public double SimulationSceneSideLength { get; set; } = 1_000;
 
         [Setting("Mutation Probability", "General")]
         [DoubleSettingValueLimits(0, 100)]
         public double MutationProbability { get; set; } = 5;
 
         [Setting("Randomness Seed (0 for random seed)", "General")]
-        public int RandomnessSeed { get; set; } = 0;
+        public int RandomnessSeed { get => SimulationRandom.Seed; set => SimulationRandom.Seed = value; }
 
         [Setting("Simulation Log Directory", "General")]
         [StringSettingIsPath]
-        public string SimulationLogDirectory { get; set; } = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "/EvolutionSimulation/");
+        public string SimulationLogDirectory { get; set; } = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "EvolutionSimulation/");
+
 
         #region Plant Starting Properties
 
         private PlantProperties startingPlantProperties = new PlantProperties
         {
             AdultSize = new Property(20, 1, 1000, 50),
-            MutationStrength = new Property(0.1, 0.001, 1, 0.05),
+            MutationStrength = new Property(1, 0.5, 40, 5),
             GrowthRate = new Property(0.01, 0.001, 10, 0.1),
             OffspringAmount = new Property(1, 1, 10, 3),
             ReproductionEnergy = new Property(50, 0, 100, 50),
@@ -40,7 +42,7 @@ namespace Windore.EvolutionSimulation
             TemperatureChangeResistance = new Property(5, 1, 100, 10),
             EnvironmentToxicityResistance = new Property(0, 0, 100, 10),
             Toxicity = new Property(0, 0, 100, 10),
-            ReproductionArea = new Property(5, 1, 200, 20),
+            ReproductionArea = new Property(40, 1, 300, 50),
             EnergyProductionInLowNutrientGrounds = new Property(0, 0, 20, 5)
         };
 
@@ -49,7 +51,7 @@ namespace Windore.EvolutionSimulation
         public double AdultSizePP { get => startingPlantProperties.AdultSize.Value; set => startingPlantProperties.AdultSize.Value = value; }
 
         [Setting("Mutation Strength", "Plant Starting Properties")]
-        [DoubleSettingValueLimits(0.001, 1)]
+        [DoubleSettingValueLimits(0.5, 40)]
         public double MutationStrengthPP { get => startingPlantProperties.MutationStrength.Value; set => startingPlantProperties.MutationStrength.Value = value; }
 
         [Setting("Growth Rate", "Plant Starting Properties")]
@@ -85,7 +87,7 @@ namespace Windore.EvolutionSimulation
         public double ToxicityPP { get => startingPlantProperties.Toxicity.Value; set => startingPlantProperties.Toxicity.Value = value; }
 
         [Setting("Reproduction Area", "Plant Starting Properties")]
-        [DoubleSettingValueLimits(1, 200)]
+        [DoubleSettingValueLimits(1, 300)]
         public double ReproductionAreaPP { get => startingPlantProperties.ReproductionArea.Value; set => startingPlantProperties.ReproductionArea.Value = value; }
 
         [Setting("Energy Production In Low Nutrient Grounds", "Plant Starting Properties")]
@@ -107,7 +109,7 @@ namespace Windore.EvolutionSimulation
             }
         }
 
-        public SRandom SimulationRandom { get; }
+        public SRandom SimulationRandom { get; private set; } = new SRandom(0);
         private Manager smng;
         public Manager SimulationManager
         {
@@ -127,7 +129,6 @@ namespace Windore.EvolutionSimulation
 
                     // Logging must be set up only after all object types that will be logged are added to the simulation.
                     smng.SetUpLogging();
-
                 }
                 return smng;
             }
@@ -138,21 +139,61 @@ namespace Windore.EvolutionSimulation
         private SimulationSettings() 
         {
             manager.SetSettingObject(this);
+        }
 
-            if (RandomnessSeed == 0) 
+        public void InitSimulation() 
+        {
+            InitSRandom();
+            CloseSettingsWindow();
+            WriteSettingsFile();
+        }
+
+        private void WriteSettingsFile()
+        {
+            Directory.CreateDirectory(SimulationLogDirectory);
+            string text = manager.GenerateSettingsString();
+
+            string fileName = Path.Combine(SimulationLogDirectory, "simulation-settings-file");
+
+            // Find a file that doesn't exist by adding numbers in the end of the file name
+            int num = 0;
+            string addition = $"-0.txt";
+
+            while (File.Exists(fileName + addition))
+            {
+                num++;
+                addition = $"-{num}.txt";
+            }
+            fileName += addition;
+
+            File.WriteAllText(fileName, text);
+        }
+
+        private void InitSRandom()
+        {
+            if (RandomnessSeed == 0)
             {
                 SimulationRandom = new SRandom();
             }
-            else 
-            {
-                SimulationRandom = new SRandom(RandomnessSeed);
-            }
         }
+
+        private SettingsWindow window;
 
         public void OpenSettingsWindow() 
         {
-            SettingsWindow window = new SettingsWindow(manager);
+            if (window != null)
+                window.Close();
+
+            window = new SettingsWindow(manager);
             window.Show();
+        }
+
+        private void CloseSettingsWindow()
+        {
+            if (window == null)
+                return;
+
+            window.Close();
         }
     }
 }
