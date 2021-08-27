@@ -15,9 +15,9 @@ namespace Windore.EvolutionSimulation
 {
     public class Manager : SimulationManager
     {
-        private ChangingVariable baseEnvToxicity = new ChangingVariable(0, 0, 100, 0);
-        private ChangingVariable baseEnvTemperature = new ChangingVariable(30, 0, 100, 0);
-        private ChangingVariable baseEnvGroundNutrientContent = new ChangingVariable(10, 0, 20, 0);
+        private ChangingVariable BaseEnvToxicity { get; set; } = new ChangingVariable(0, 0, 100, 0);
+        private ChangingVariable BaseEnvTemperature { get; set; } = new ChangingVariable(30, 0, 100, 0);
+        private ChangingVariable BaseEnvGroundNutrientContent { get; set; } = new ChangingVariable(10, 0, 20, 0);
 
         public Objects.Environment Env1 { get; private set; }
         public Objects.Environment Env2 { get; private set; }
@@ -25,7 +25,7 @@ namespace Windore.EvolutionSimulation
 
         public DataWindowManager DataWindowManager { get; } = new DataWindowManager();
 
-        private Objects.Environment[] Envs => new Objects.Environment[]{ Env1, Env2, Env3 };
+        public Objects.Environment[] Envs => new Objects.Environment[]{ Env1, Env2, Env3 };
 
         [DataPoint("Duration")]
         public ulong Duration { get => SimulationScene.Age; }
@@ -123,9 +123,9 @@ namespace Windore.EvolutionSimulation
 
         protected override void BeforeUpdate()
         {
-            baseEnvToxicity.Update();
-            baseEnvTemperature.Update();
-            baseEnvGroundNutrientContent.Update();
+            BaseEnvToxicity.Update();
+            BaseEnvTemperature.Update();
+            BaseEnvGroundNutrientContent.Update();
         }
 
         protected override void AfterUpdate()
@@ -142,26 +142,26 @@ namespace Windore.EvolutionSimulation
 
             Env1 = new Objects.Environment(new Point(SimulationScene.Width * 0.25, SimulationScene.Height * 0.33), envSize)
             {
-                Toxicity = new ChangingVariable(0, 0, 0, 0, baseEnvToxicity),
-                Temperature = new ChangingVariable(0, 0, 0, 0, baseEnvTemperature),
-                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, baseEnvGroundNutrientContent),
+                Toxicity = new ChangingVariable(0, 0, 0, 0, BaseEnvToxicity),
+                Temperature = new ChangingVariable(0, 0, 0, 0, BaseEnvTemperature),
+                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, BaseEnvGroundNutrientContent),
                 Name = "Normal"
             };
 
             Env2 = new Objects.Environment(new Point(SimulationScene.Width * 0.75, SimulationScene.Height * 0.33), envSize)
             {
-                Toxicity = new ChangingVariable(0, 0, 0, 0, baseEnvToxicity),
-                Temperature = new ChangingVariable(10, 0, 10, 0, baseEnvTemperature),
-                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, baseEnvGroundNutrientContent),
+                Toxicity = new ChangingVariable(0, 0, 0, 0, BaseEnvToxicity),
+                Temperature = new ChangingVariable(10, 0, 10, 0, BaseEnvTemperature),
+                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, BaseEnvGroundNutrientContent),
                 Name = "Temperature"
                 
             };
 
             Env3 = new Objects.Environment(new Point(SimulationScene.Width * 0.50, SimulationScene.Height * 0.66), envSize)
             {
-                Toxicity = new ChangingVariable(0, 0, 0, 0, baseEnvToxicity),
-                Temperature = new ChangingVariable(0, 0, 0, 0, baseEnvTemperature),
-                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, baseEnvGroundNutrientContent),
+                Toxicity = new ChangingVariable(0, 0, 0, 0, BaseEnvToxicity),
+                Temperature = new ChangingVariable(0, 0, 0, 0, BaseEnvTemperature),
+                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, BaseEnvGroundNutrientContent),
                 Name = "Toxicity"
             };
 

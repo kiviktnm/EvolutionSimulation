@@ -96,6 +96,99 @@ namespace Windore.EvolutionSimulation
 
         #endregion
 
+        #region Animal Starting Properties
+
+        private AnimalProperties startingAnimalProperties = new AnimalProperties
+        {
+            AdultSize = new Property(20, 1, 1000, 50),
+            MutationStrength = new Property(1, 0.5, 40, 5),
+            GrowthRate = new Property(0.01, 0.001, 10, 0.1),
+            OffspringAmount = new Property(1, 1, 10, 3),
+            ReproductionEnergy = new Property(50, 0, 100, 50),
+            BackupEnergy = new Property(20, 0, 100, 20),
+            OptimalTemperature = new Property(30, 0, 80, 50),
+            TemperatureChangeResistance = new Property(5, 1, 100, 10),
+            EnvironmentToxicityResistance = new Property(0, 0, 100, 10),
+            MovementSpeed = new Property(1, 0, 20, 4),
+            CarnivorityTendency = new Property(50, 0, 100, 50),
+            Eyesight = new Property(5, 0, 30, 10),
+            OffensiveCapability = new Property(2, 0, 20, 8),
+            DefensiveCapability = new Property(2, 0, 20, 8),
+            ThreatConsiderationLimit = new Property(10, 0, 40, 15),
+            PlantToxicityResistance = new Property(0, 0, 100, 30),
+            FoodStoringAndDigestingCapability = new Property(10, 1, 30, 10)
+        };
+
+        [Setting("Adult Size", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(1, 1000)]
+        public double AdultSizeAP { get => startingAnimalProperties.AdultSize.Value; set => startingAnimalProperties.AdultSize.Value = value; }
+
+        [Setting("Mutation Strength", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0.5, 40)]
+        public double MutationStrengthAP { get => startingAnimalProperties.MutationStrength.Value; set => startingAnimalProperties.MutationStrength.Value = value; }
+
+        [Setting("Growth Rate", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0.001, 10)]
+        public double GrowthRateAP { get => startingAnimalProperties.GrowthRate.Value; set => startingAnimalProperties.GrowthRate.Value = value; }
+
+        [Setting("Offspring Amount", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(1, 10)]
+        public double OffspringAmountAP { get => startingAnimalProperties.OffspringAmount.Value; set => startingAnimalProperties.OffspringAmount.Value = value; }
+
+        [Setting("Reproduction Energy", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double ReproductionEnergyAP { get => startingAnimalProperties.ReproductionEnergy.Value; set => startingAnimalProperties.ReproductionEnergy.Value = value; }
+
+        [Setting("Backup Energy", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double BackupEnergyAP { get => startingAnimalProperties.BackupEnergy.Value; set => startingAnimalProperties.BackupEnergy.Value = value; }
+
+        [Setting("Optimal Temperature", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 80)]
+        public double OptimalTemperatureAP { get => startingAnimalProperties.OptimalTemperature.Value; set => startingAnimalProperties.OptimalTemperature.Value = value; }
+
+        [Setting("Temperature Change Resistance", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(1, 100)]
+        public double TemperatureChangeResistanceAP { get => startingAnimalProperties.TemperatureChangeResistance.Value; set => startingAnimalProperties.TemperatureChangeResistance.Value = value; }
+
+        [Setting("Environment Toxicity Resistance", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double EnvironmentToxicityResistanceAP { get => startingAnimalProperties.EnvironmentToxicityResistance.Value; set => startingAnimalProperties.EnvironmentToxicityResistance.Value = value; }
+
+        [Setting("Movement Speed", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 20)]
+        public double MovementSpeedAP { get => startingAnimalProperties.MovementSpeed.Value; set => startingAnimalProperties.MovementSpeed.Value = value; }
+
+        [Setting("Carnivority Tendency", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double CarnivorityTendencyAP { get => startingAnimalProperties.CarnivorityTendency.Value; set => startingAnimalProperties.CarnivorityTendency.Value = value; }
+
+        [Setting("Eyesight", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 30)]
+        public double EyesightAP { get => startingAnimalProperties.Eyesight.Value; set => startingAnimalProperties.Eyesight.Value = value; }
+
+        [Setting("Offensive Capability", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 20)]
+        public double OffensiveCapabilityAP { get => startingAnimalProperties.OffensiveCapability.Value; set => startingAnimalProperties.OffensiveCapability.Value = value; }
+
+        [Setting("Defensive Capability", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 20)]
+        public double DefensiveCapabilityAP { get => startingAnimalProperties.DefensiveCapability.Value; set => startingAnimalProperties.DefensiveCapability.Value = value; }
+
+        [Setting("Threat Consideration Limit", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 40)]
+        public double ThreatConsiderationLimitAP { get => startingAnimalProperties.ThreatConsiderationLimit.Value; set => startingAnimalProperties.ThreatConsiderationLimit.Value = value; }
+
+        [Setting("Plant Toxicity Resistance", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double PlantToxicityResistanceAP { get => startingAnimalProperties.PlantToxicityResistance.Value; set => startingAnimalProperties.PlantToxicityResistance.Value = value; }
+
+        [Setting("Food Storing And Digesting Capability", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(1, 30)]
+        public double FoodStoringAndDigestingCapabilityAP { get => startingAnimalProperties.FoodStoringAndDigestingCapability.Value; set => startingAnimalProperties.FoodStoringAndDigestingCapability.Value = value; }
+
+        #endregion
+
         private static SimulationSettings ins;
         public static SimulationSettings Instance 
         {
