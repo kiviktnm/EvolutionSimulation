@@ -1,17 +1,14 @@
-using Windore.Simulations2D;
-using Windore.Simulations2D.Util.SMath;
-using Windore.EvolutionSimulation.Objects;
-using System;
-using Windore.Simulations2D.Data;
-using System.Linq;
 using Avalonia.Controls;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Windore.Simulations2D.GUI;
-using Avalonia.Threading;
-using Avalonia.Controls.ApplicationLifetimes;
+using System.Linq;
+using Windore.EvolutionSimulation.Objects;
+using Windore.Simulations2D;
+using Windore.Simulations2D.Data;
+using Windore.Simulations2D.Util.SMath;
 
-namespace Windore.EvolutionSimulation 
+namespace Windore.EvolutionSimulation
 {
     public class Manager : SimulationManager
     {
@@ -32,8 +29,12 @@ namespace Windore.EvolutionSimulation
 
         [DataPoint("PlantAmount")]
         public int PlantAmount { get => SimulationScene.SimulationObjects.Where(obj => obj is Plant).Count(); }
+        [DataPoint("AnimalAmount")]
+        public int AnimalAmount { get => SimulationScene.SimulationObjects.Where(obj => obj is Animal).Count(); }
 
         public Dictionary<string, DataCollector.Data> PlantsData { get; private set; } = new Dictionary<string, DataCollector.Data>();
+        public Dictionary<string, DataCollector.Data> AnimalsData { get; private set; } = new Dictionary<string, DataCollector.Data>();
+
 
         private DataCollector collector = new DataCollector();
         private Dictionary<string, FileLogger> loggers = new Dictionary<string, FileLogger>();
@@ -57,52 +58,77 @@ namespace Windore.EvolutionSimulation
                 {
                     case Plant plnt:
                         panel.Children.Add(new TextBlock { Text = "Plant", Margin = new Avalonia.Thickness(5, 5, 5, 0), FontSize = 16, FontWeight = Avalonia.Media.FontWeight.Bold });
-                        panel.Children.Add(NewSelectedPanelText($"Current Energy: {Math.Round(plnt.CurrentEnergy, 3)}"));
-                        panel.Children.Add(NewSelectedPanelText($"Energy Production: {Math.Round(plnt.EnergyProduction, 3)}"));
-                        panel.Children.Add(NewSelectedPanelText($"Energy Consumption: {Math.Round(plnt.EnergyConsumption, 3)}"));
-                        panel.Children.Add(NewSelectedPanelText($"Energy Storing Capacity: {Math.Round(plnt.EnergyStoringCapacity, 3)}"));
-                        panel.Children.Add(NewSelectedPanelText($"Current Size: {Math.Round(plnt.CurrentSize, 3)}"));
-                        panel.Children.Add(NewSelectedPanelText($"Current Age: {plnt.Age}"));
+                        AddOrganismToPanel(panel, plnt);
 
                         foreach (KeyValuePair<string, Property> pair in plnt.Properties.Properties)
                         {
                             panel.Children.Add(NewSelectedPanelText($"{pair.Key}: {Math.Round(pair.Value.Value, 3)}"));
                         }
                         break;
+                    case Animal animal:
+                        panel.Children.Add(new TextBlock { Text = "Animal", Margin = new Avalonia.Thickness(5, 5, 5, 0), FontSize = 16, FontWeight = Avalonia.Media.FontWeight.Bold });
+                        AddOrganismToPanel(panel, animal);
+                        panel.Children.Add(NewSelectedPanelText($"Stored Food: {Math.Round(animal.StoredFood, 3)}"));
+
+                        foreach (KeyValuePair<string, Property> pair in animal.Properties.Properties)
+                        {
+                            panel.Children.Add(NewSelectedPanelText($"{pair.Key}: {Math.Round(pair.Value.Value, 3)}"));
+                        }
+                        break;
                     case Objects.Environment env:
-                        panel.Children.Add(new TextBlock { Text = "Environment", Margin = new Avalonia.Thickness(5, 5, 5, 0), FontSize = 16, FontWeight = Avalonia.Media.FontWeight.Bold });
-                        panel.Children.Add(NewSelectedPanelText($"Toxicity: {Math.Round(env.Toxicity.Value, 3)}"));
-                        panel.Children.Add(NewSelectedPanelText($"Temperature: {Math.Round(env.Temperature.Value, 3)}"));
-                        panel.Children.Add(NewSelectedPanelText($"Ground Nutrient Content: {Math.Round(env.GroundNutrientContent.Value, 3)}"));
-                        panel.Children.Add(NewSelectedPanelText($"Plant Amount in Env: {env.PlantAmount}"));
-                        panel.Children.Add(NewSelectedPanelText($"Animal Amount in Env: {env.AnimalAmount}"));
-
-                        Button plantPanelBtn = new Button
-                        {
-                            Margin = new Avalonia.Thickness(5),
-                            Height = 30,
-                            Content = "Open Env Plants Panel"
-                        };
-
-                        Button animalPanelBtn = new Button
-                        {
-                            Margin = new Avalonia.Thickness(5),
-                            Height = 30,
-                            Content = "Open Env Animals Panel"
-                        };
-
-                        plantPanelBtn.Click += (_, __) =>
-                        {
-                            DataWindowManager.OpenWindow(env.PlantsData, $"{env.Name} Environment Plants");
-                        };
-
-                        panel.Children.Add(plantPanelBtn);
-                        panel.Children.Add(animalPanelBtn);
+                        AddEnvironmentToPanel(panel, env);
                         break;
                 }
 
                 return panel;
             }
+        }
+
+        private void AddOrganismToPanel(StackPanel panel, Organism organism)
+        {
+            panel.Children.Add(NewSelectedPanelText($"Current Energy: {Math.Round(organism.CurrentEnergy, 3)}"));
+            panel.Children.Add(NewSelectedPanelText($"Energy Production: {Math.Round(organism.EnergyProduction, 3)}"));
+            panel.Children.Add(NewSelectedPanelText($"Energy Consumption: {Math.Round(organism.EnergyConsumption, 3)}"));
+            panel.Children.Add(NewSelectedPanelText($"Energy Storing Capacity: {Math.Round(organism.EnergyStoringCapacity, 3)}"));
+            panel.Children.Add(NewSelectedPanelText($"Current Size: {Math.Round(organism.CurrentSize, 3)}"));
+            panel.Children.Add(NewSelectedPanelText($"Current Age: {organism.Age}"));
+        }
+
+        private void AddEnvironmentToPanel(StackPanel panel, Objects.Environment env)
+        {
+            panel.Children.Add(new TextBlock { Text = "Environment", Margin = new Avalonia.Thickness(5, 5, 5, 0), FontSize = 16, FontWeight = Avalonia.Media.FontWeight.Bold });
+            panel.Children.Add(NewSelectedPanelText($"Toxicity: {Math.Round(env.Toxicity.Value, 3)}"));
+            panel.Children.Add(NewSelectedPanelText($"Temperature: {Math.Round(env.Temperature.Value, 3)}"));
+            panel.Children.Add(NewSelectedPanelText($"Ground Nutrient Content: {Math.Round(env.GroundNutrientContent.Value, 3)}"));
+            panel.Children.Add(NewSelectedPanelText($"Plant Amount in Env: {env.PlantAmount}"));
+            panel.Children.Add(NewSelectedPanelText($"Animal Amount in Env: {env.AnimalAmount}"));
+
+            Button plantPanelBtn = new Button
+            {
+                Margin = new Avalonia.Thickness(5),
+                Height = 30,
+                Content = "Open Env Plants Panel"
+            };
+
+            Button animalPanelBtn = new Button
+            {
+                Margin = new Avalonia.Thickness(5),
+                Height = 30,
+                Content = "Open Env Animals Panel"
+            };
+
+            plantPanelBtn.Click += (_, __) =>
+            {
+                DataWindowManager.OpenWindow(env.PlantsData, $"{env.Name} Environment Plants");
+            };
+
+            animalPanelBtn.Click += (_, __) =>
+            {
+                DataWindowManager.OpenWindow(env.AnimalsData, $"{env.Name} Environment Animals");
+            };
+
+            panel.Children.Add(plantPanelBtn);
+            panel.Children.Add(animalPanelBtn);
         }
 
         private TextBlock NewSelectedPanelText(string text) 
@@ -188,8 +214,80 @@ namespace Windore.EvolutionSimulation
                 throw new Exception("Cannot log data because logging has not been set up yet.");
             }
 
+            LogAllAnimals();
+            LogAllPlants();
+
+            int cnt = 1;
+            foreach(Objects.Environment env in Envs) 
+            {
+                // Number cnt is used to log the same environment with the same logger
+                LogEnvPlants(env, cnt);
+                LogEnvAnimals(env, cnt);
+                cnt++;
+            }
+        }
+
+        private void LogEnvPlants(Objects.Environment env, int cnt)
+        {
+            env.PlantsData.Clear();
+
+            // Collect and add plant properties to data
+            collector.CollectData(
+                env.ObjectsCurrentlyInEnv
+                .Where(obj => obj is Plant)
+                .Select(obj => (Plant)obj)
+                .Select(plant => plant.Properties)
+            ).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
+
+            // Same for organism values
+            collector.CollectData(
+                env.ObjectsCurrentlyInEnv
+                .Where(obj => obj is Plant)
+                .Select(obj => (Organism)obj)
+            ).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
+
+            // And manager values
+            collector.CollectSingleValueData(this).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
+
+            // Also log the environment values
+            collector.CollectSingleValueData(env).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
+
+            loggers[$"Env{cnt}Plants"].Log(env.PlantsData);
+        }
+
+        private void LogEnvAnimals(Objects.Environment env, int cnt) 
+        {
+            env.AnimalsData.Clear();
+
+            // Collect and add animal properties to data
+            collector.CollectData(
+                env.ObjectsCurrentlyInEnv
+                .Where(obj => obj is Animal)
+                .Select(obj => (Animal)obj)
+                .Select(animal => animal.Properties)
+            ).ToList().ForEach(obj => env.AnimalsData.Add(obj.Key, obj.Value));
+
+            // Same for organism values
+            collector.CollectData(
+                env.ObjectsCurrentlyInEnv
+                .Where(obj => obj is Animal)
+                .Select(obj => (Organism)obj)
+            ).ToList().ForEach(obj => env.AnimalsData.Add(obj.Key, obj.Value));
+
+            // And manager values
+            collector.CollectSingleValueData(this).ToList().ForEach(obj => env.AnimalsData.Add(obj.Key, obj.Value));
+
+            // Also log the environment values
+            collector.CollectSingleValueData(env).ToList().ForEach(obj => env.AnimalsData.Add(obj.Key, obj.Value));
+
+            loggers[$"Env{cnt}Animals"].Log(env.AnimalsData);
+        }
+
+        private void LogAllPlants()
+        {
             PlantsData.Clear();
 
+            // Collect plant properties and add them to data
             collector.CollectData(
                 SimulationScene.SimulationObjects
                 .Where(obj => obj is Plant)
@@ -197,54 +295,82 @@ namespace Windore.EvolutionSimulation
                 .Select(plant => plant.Properties)
             ).ToList().ForEach(obj => PlantsData.Add(obj.Key, obj.Value));
 
+            // Collect (plant) organism values e.g age and add them to data
             collector.CollectData(
                 SimulationScene.SimulationObjects
                 .Where(obj => obj is Plant)
                 .Select(obj => (Organism)obj)
             ).ToList().ForEach(obj => PlantsData.Add(obj.Key, obj.Value));
 
+            // Collect manager values and add them to data
             collector.CollectSingleValueData(this).ToList().ForEach(obj => PlantsData.Add(obj.Key, obj.Value));
 
+            // Log collected values
             loggers["AllPlants"].Log(PlantsData);
+        }
 
-            int cnt = 1;
-            foreach(Objects.Environment env in Envs) 
-            {
-                env.PlantsData.Clear();
+        private void LogAllAnimals()
+        {
+            AnimalsData.Clear();
 
-                collector.CollectData(
-                    env.ObjectsCurrentlyInEnv
-                    .Where(obj => obj is Plant)
-                    .Select(obj => (Plant)obj)
-                    .Select(plant => plant.Properties)
-                ).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
+            // Collect animal properties and add them to data
+            collector.CollectData(
+                SimulationScene.SimulationObjects
+                .Where(obj => obj is Animal)
+                .Select(obj => (Animal)obj)
+                .Select(animal => animal.Properties)
+            ).ToList().ForEach(obj => AnimalsData.Add(obj.Key, obj.Value));
 
-                collector.CollectData(
-                    env.ObjectsCurrentlyInEnv
-                    .Where(obj => obj is Plant)
-                    .Select(obj => (Organism)obj)
-                ).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
+            // Collect (plant) organism values e.g age and add them to data
+            collector.CollectData(
+                SimulationScene.SimulationObjects
+                .Where(obj => obj is Animal)
+                .Select(obj => (Organism)obj)
+            ).ToList().ForEach(obj => AnimalsData.Add(obj.Key, obj.Value));
 
-                collector.CollectSingleValueData(this).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
-                collector.CollectSingleValueData(env).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
+            // Collect manager values and add them to data
+            collector.CollectSingleValueData(this).ToList().ForEach(obj => AnimalsData.Add(obj.Key, obj.Value));
 
-                loggers[$"Env{cnt}Plants"].Log(env.PlantsData);
-                cnt++;
-            }
+            // Log collected values
+            loggers["AllAnimals"].Log(AnimalsData);
         }
 
         public void SetUpLogging() 
         {
             Directory.CreateDirectory(SimulationSettings.Instance.SimulationLogDirectory);
 
+            // Get all titles of the values that will be logged
             List<string> plantTitles = collector.GetTypeDataPointTitles(typeof(PlantProperties));
-            loggers["AllPlants"] = new FileLogger(Path.Combine(SimulationSettings.Instance.SimulationLogDirectory, "all-plants"), plantTitles.ToArray());
+            List<string> animalTitles = collector.GetTypeDataPointTitles(typeof(AnimalProperties));
+            List<string> commonTitles = collector.GetTypeDataPointTitles(typeof(Organism));
+            commonTitles.AddRange(collector.GetTypeDataPointTitles(typeof(Manager)));
+            List<string> envTitles = collector.GetTypeDataPointTitles(typeof(Objects.Environment));
 
-            plantTitles.AddRange(collector.GetTypeDataPointTitles(typeof(Objects.Environment)));
+            List<string> addedTitles = new List<string>();
+            addedTitles.AddRange(plantTitles);
+            addedTitles.AddRange(commonTitles);
+
+            loggers["AllPlants"] = new FileLogger(Path.Combine(SimulationSettings.Instance.SimulationLogDirectory, "all-plants"), addedTitles.ToArray());
+
+            addedTitles.AddRange(envTitles);
 
             for(int i = 1; i <= Envs.Length; i++)
             {
-                loggers[$"Env{i}Plants"] = new FileLogger(Path.Combine(SimulationSettings.Instance.SimulationLogDirectory, $"env{i}-plants"), plantTitles.ToArray());
+                loggers[$"Env{i}Plants"] = new FileLogger(Path.Combine(SimulationSettings.Instance.SimulationLogDirectory, $"env{i}-plants"), addedTitles.ToArray());
+            }
+
+            // Clear added titles for animals
+            addedTitles.Clear();
+            addedTitles.AddRange(commonTitles);
+            addedTitles.AddRange(animalTitles);
+
+            loggers["AllAnimals"] = new FileLogger(Path.Combine(SimulationSettings.Instance.SimulationLogDirectory, "all-animals"), addedTitles.ToArray());
+
+            addedTitles.AddRange(envTitles);
+
+            for (int i = 1; i <= Envs.Length; i++)
+            {
+                loggers[$"Env{i}Animals"] = new FileLogger(Path.Combine(SimulationSettings.Instance.SimulationLogDirectory, $"env{i}-animals"), addedTitles.ToArray());
             }
         }
     }

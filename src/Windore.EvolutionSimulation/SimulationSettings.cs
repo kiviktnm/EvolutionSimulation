@@ -109,7 +109,7 @@ namespace Windore.EvolutionSimulation
             OptimalTemperature = new Property(30, 0, 80, 50),
             TemperatureChangeResistance = new Property(5, 1, 100, 10),
             EnvironmentToxicityResistance = new Property(0, 0, 100, 10),
-            MovementSpeed = new Property(1, 0, 20, 4),
+            MovementSpeed = new Property(10, 0, 40, 10),
             CarnivorityTendency = new Property(50, 0, 100, 50),
             Eyesight = new Property(5, 0, 30, 10),
             OffensiveCapability = new Property(2, 0, 20, 8),
@@ -213,12 +213,24 @@ namespace Windore.EvolutionSimulation
                     SimulationScene scene = new SimulationScene(Instance.SimulationSceneSideLength, Instance.SimulationSceneSideLength);
                     smng = new Manager(scene);
 
-                    Point plantPoint = new Point(scene.Width * 0.50, scene.Height * 0.66);
-                    Plant startingPlant = new Plant(plantPoint, 10, startingPlantProperties);
-
-                    scene.Add(startingPlant);
-
                     smng.SetUpEnvs();
+
+                    Point startingPoint = new Point(scene.Width * 0.50, scene.Height * 0.66);
+
+                    for (int i = 0; i < 15; i++)
+                    {
+                        Plant startingPlant = new Plant(startingPoint, 10, startingPlantProperties);
+                        startingPlant.MoveTowards(SimulationRandom.Point(SimulationSceneSideLength, SimulationSceneSideLength), SimulationSceneSideLength * 0.415d / 4d);
+
+                        scene.Add(startingPlant);
+                    }
+                    Plant startingCenterPlant = new Plant(startingPoint, 10, startingPlantProperties);
+                    scene.Add(startingCenterPlant);
+
+
+                    Animal startingAnimal = new Animal(startingPoint, 100, startingAnimalProperties);
+                    startingAnimal.StoredFood = 100;
+                    scene.Add(startingAnimal);
 
                     // Logging must be set up only after all object types that will be logged are added to the simulation.
                     smng.SetUpLogging();

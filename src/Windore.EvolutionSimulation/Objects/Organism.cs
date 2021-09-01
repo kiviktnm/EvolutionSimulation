@@ -40,7 +40,7 @@ namespace Windore.EvolutionSimulation.Objects
                 }
             }
         }
-        public double EnergyStoringCapacity { get => CurrentSize * 3; }
+        public double EnergyStoringCapacity { get => CurrentSize * 10; }
         public abstract double MaxSize { get; }
         public abstract double EnergyConsumption { get; }
         public abstract double EnergyProduction { get; }

@@ -50,8 +50,37 @@ namespace Windore.EvolutionSimulation.Objects
         {
             Properties = properties;
 
-            CurrentSize = startingEnergy / 2;
-            CurrentEnergy = startingEnergy / 2;
+            // This rather unoptimized way is used to maximize the stored energy offspring have and minimize their size
+            CurrentSize = 1;
+            startingEnergy--;
+
+            while (startingEnergy > 0)
+            {
+                double energy = EnergyStoringCapacity - CurrentEnergy;
+                if (energy <= 0)
+                {
+                    if (startingEnergy > 1)
+                    {
+                        CurrentSize++;
+                        startingEnergy--;
+                    }
+                    else
+                    {
+                        CurrentSize += startingEnergy;
+                        startingEnergy = 0;
+                    }
+                }
+                else if (energy < startingEnergy)
+                {
+                    CurrentEnergy += energy;
+                    startingEnergy -= energy;
+                }
+                else
+                {
+                    CurrentEnergy += startingEnergy;
+                    startingEnergy = 0;
+                }
+            }
         }
 
         public override void Update()

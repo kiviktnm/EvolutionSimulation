@@ -60,7 +60,7 @@ namespace Windore.EvolutionSimulation
             {
                 Margin = new Thickness(5),
                 FontSize = 16,
-                Text = $"Animal Amount: {0}"
+                Text = $"Animal Amount: {SimulationSettings.Instance.SimulationManager.AnimalAmount}"
             });
 
             StackPanel btnsPanel = new StackPanel
@@ -87,7 +87,10 @@ namespace Windore.EvolutionSimulation
             {
                 SimulationSettings.Instance.SimulationManager.DataWindowManager.OpenWindow(SimulationSettings.Instance.SimulationManager.PlantsData, "All Plants");
             };
-            animalPanelBtn.Click += (_, __) => { };
+            animalPanelBtn.Click += (_, __) => 
+            {
+                SimulationSettings.Instance.SimulationManager.DataWindowManager.OpenWindow(SimulationSettings.Instance.SimulationManager.AnimalsData, "All Animals");
+            };
 
             btnsPanel.Children.Add(plantPanelBtn);
             btnsPanel.Children.Add(animalPanelBtn);
@@ -95,6 +98,7 @@ namespace Windore.EvolutionSimulation
             simWindow.AddSidePanelContent(btnsPanel);
 
             simWindow.AddSidePanelContent(SimulationSettings.Instance.SimulationManager.SelectedObjectPanel);
+
         }
     }
 }

@@ -18,8 +18,37 @@ namespace Windore.EvolutionSimulation.Objects
         {
             Properties = properties;
 
-            CurrentSize = startingEnergy / 2;
-            CurrentEnergy = startingEnergy / 2;
+            // This rather unoptimized way is used to maximize the stored energy offspring have and minimize their size
+            CurrentSize = 1;
+            startingEnergy--;
+
+            while(startingEnergy > 0)
+            {
+                double energy = EnergyStoringCapacity - CurrentEnergy;
+                if (energy <= 0)
+                {
+                    if (startingEnergy > 1)
+                    {
+                        CurrentSize++;
+                        startingEnergy--;
+                    }
+                    else
+                    {
+                        CurrentSize += startingEnergy;
+                        startingEnergy = 0;
+                    }
+                }
+                else if (energy < startingEnergy) 
+                {
+                    CurrentEnergy += energy;
+                    startingEnergy -= energy;
+                }
+                else
+                {
+                    CurrentEnergy += startingEnergy;
+                    startingEnergy = 0;
+                }
+            }
         }
 
         private Environment currentEnv;
@@ -64,7 +93,7 @@ namespace Windore.EvolutionSimulation.Objects
                 + Properties.OffensiveCapability.Value * CurrentSize / 3d
                 + Properties.DefensiveCapability.Value * CurrentSize / 3d
                 + Properties.PlantToxicityResistance.Value / 2d
-                + Properties.FoodStoringAndDigestingCapability.Value * CurrentSize / 10d
+                + Properties.FoodStoringAndDigestingCapability.Value * CurrentSize / 100d
                 + Properties.EnvironmentToxicityResistance.Value / 2
                 + Properties.TemperatureChangeResistance.Value / 2 * (CurrentSize / 2d)
                 + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentToxicityResistance.Value)
@@ -72,7 +101,7 @@ namespace Windore.EvolutionSimulation.Objects
                 + Injuries;
         }
 
-        private double FoodStoringCapacity => Properties.FoodStoringAndDigestingCapability.Value / 10d * CurrentSize;
+        private double FoodStoringCapacity => Properties.FoodStoringAndDigestingCapability.Value * EnergyStoringCapacity;
         private double storedFood = 0;
         public double StoredFood
         {
@@ -91,12 +120,9 @@ namespace Windore.EvolutionSimulation.Objects
                 double amountDigested = Properties.FoodStoringAndDigestingCapability.Value / 10d * Properties.FoodStoringAndDigestingCapability.Value * CurrentSize;
                 if (amountDigested > StoredFood) 
                 {
-                    double r = StoredFood;
-                    StoredFood = 0;
-                    return r;
+                    return StoredFood;
                 }
 
-                StoredFood -= amountDigested;
                 return amountDigested;
             }
         }
@@ -126,8 +152,10 @@ namespace Windore.EvolutionSimulation.Objects
 
         public override void Update()
         {
+            return;
             Injuries--;
             BasicUpdate(new Percentage(Properties.GrowthRate.Value), new Percentage(Properties.BackupEnergy.Value), new Percentage(Properties.ReproductionEnergy.Value));
+            StoredFood -= EnergyProduction;
 
             if (CurrentObjective == AnimalObjective.Fight)
             {
@@ -244,6 +272,8 @@ namespace Windore.EvolutionSimulation.Objects
         private void LookForFood(List<Animal> animals, List<Plant> plants) 
         {
             bool prefersAnimals = Properties.CarnivorityTendency.Value > 50;
+            bool pureCarnivore = Properties.CarnivorityTendency.Value > 75;
+            bool pureHerbivore = Properties.CarnivorityTendency.Value < 25;
 
             Animal animalFoodCanditate = LookForAnimalFood(animals);
             Plant plantFoodCanditate = LookForPlantFood(plants);
@@ -251,14 +281,14 @@ namespace Windore.EvolutionSimulation.Objects
             if (animalFoodCanditate == null && plantFoodCanditate == null)
                 return;
 
-            if (animalFoodCanditate == null)
+            if (animalFoodCanditate == null && !pureCarnivore)
             {
                 currentPlantTarget = plantFoodCanditate;
                 CurrentObjective = AnimalObjective.EatPlant;
                 return;
             }
 
-            if (plantFoodCanditate == null)
+            if (plantFoodCanditate == null && !pureHerbivore)
             {
                 currentTarget = animalFoodCanditate;
                 CurrentObjective = AnimalObjective.EatAnimal;
@@ -286,6 +316,8 @@ namespace Windore.EvolutionSimulation.Objects
             {
                 // Do not eat your relatives!
                 if (Relatives.Contains(animal)) continue;
+                // Also don't eat yourself!
+                if (animal == this) continue;
 
                 double thrVal = GetThreatValue(animal);
                 if (thrVal < lowestThreatVal)
@@ -330,6 +362,8 @@ namespace Windore.EvolutionSimulation.Objects
             {
                 // Relatives are no threats
                 if (Relatives.Contains(animal)) continue;
+                // OFC you aren't a threat to yourself right?
+                if (animal == this) continue;
 
                 double thrVal = GetThreatValue(animal);
                 if (thrVal > highestThreatVal)
@@ -344,15 +378,11 @@ namespace Windore.EvolutionSimulation.Objects
                 currentTarget = highestThreat;
                 CurrentObjective = AnimalObjective.RunAway;
             }
-            else
-            {
-                CurrentObjective = AnimalObjective.FindFood;
-            }
         }
 
         private List<Organism> GetOrganismsInSight()
         {
-            return GetSimulationObjectsInRange(Properties.Eyesight.Value).Where(obj => obj is Organism).Select(obj => (Organism)obj).ToList();
+            return GetSimulationObjectsInRange(Properties.Eyesight.Value + CurrentSize / 2d).Where(obj => obj is Organism).Select(obj => (Organism)obj).ToList();
         }
 
         private List<Animal> GetAnimalsInSight(List<Organism> organisms)

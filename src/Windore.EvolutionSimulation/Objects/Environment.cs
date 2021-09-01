@@ -28,6 +28,8 @@ namespace Windore.EvolutionSimulation.Objects
         public double GroundNutrientContentDC { get => GroundNutrientContent.Value; }
 
         public Dictionary<string, DataCollector.Data> PlantsData { get; set; } = new Dictionary<string, DataCollector.Data>();
+        public Dictionary<string, DataCollector.Data> AnimalsData { get; set; } = new Dictionary<string, DataCollector.Data>();
+
 
         public List<SimulationObject> ObjectsCurrentlyInEnv { get; set; } = new List<SimulationObject>();
 
