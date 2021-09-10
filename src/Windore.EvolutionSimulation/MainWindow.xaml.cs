@@ -29,7 +29,7 @@ namespace Windore.EvolutionSimulation
 
         private void OnStartBtnClick(object sender, RoutedEventArgs e) 
         {
-            simWindow = new SimulationWindow(SimulationSettings.Instance.SimulationManager);
+            simWindow = new SimulationWindow(SimulationSettings.Instance.SimulationManager, true);
             SimulationSettings.Instance.InitSimulation();
 
             simWindow.SidePanelWidth = 250;

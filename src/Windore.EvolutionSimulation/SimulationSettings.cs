@@ -227,16 +227,25 @@ namespace Windore.EvolutionSimulation
                     Plant startingCenterPlant = new Plant(startingPoint, 10, startingPlantProperties);
                     scene.Add(startingCenterPlant);
 
-
-                    Animal startingAnimal = new Animal(startingPoint, 100, startingAnimalProperties);
-                    startingAnimal.StoredFood = 100;
-                    scene.Add(startingAnimal);
+                    // This animal will die rather immediatly, but adding it here is necessary since logging requires it to exist
+                    AddStartingAnimal();
+                    // The "real" starting animal is added later to the simulation
 
                     // Logging must be set up only after all object types that will be logged are added to the simulation.
                     smng.SetUpLogging();
                 }
                 return smng;
             }
+        }
+
+        public void AddStartingAnimal()
+        {
+            Point startingPoint = new Point(smng.SimulationScene.Width * 0.50, smng.SimulationScene.Height * 0.66);
+            Animal startingAnimal = new Animal(startingPoint, 100, startingAnimalProperties)
+            {
+                StoredFood = 1000
+            };
+            smng.SimulationScene.Add(startingAnimal);
         }
 
         private SettingsManager<SimulationSettings> manager = new SettingsManager<SimulationSettings>();

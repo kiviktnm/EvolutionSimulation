@@ -152,6 +152,11 @@ namespace Windore.EvolutionSimulation
             BaseEnvToxicity.Update();
             BaseEnvTemperature.Update();
             BaseEnvGroundNutrientContent.Update();
+
+            if (Duration == 30_000)
+            {
+                SimulationSettings.Instance.AddStartingAnimal();
+            }
         }
 
         protected override void AfterUpdate()

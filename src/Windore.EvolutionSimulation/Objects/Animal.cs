@@ -71,6 +71,7 @@ namespace Windore.EvolutionSimulation.Objects
         private Animal currentTarget;
         private Plant currentPlantTarget;
         private bool defensiveFight = false;
+        private Point randomMovementPoint = new Point(int.MaxValue, int.MinValue);
 
         public double MaxInjuries => CurrentSize / 3d;
         private double injs = 0;
@@ -117,7 +118,7 @@ namespace Windore.EvolutionSimulation.Objects
             {
                 if (StoredFood <= 0) return 0;
 
-                double amountDigested = Properties.FoodStoringAndDigestingCapability.Value / 10d * Properties.FoodStoringAndDigestingCapability.Value * CurrentSize;
+                double amountDigested = EnergyConsumption + Properties.FoodStoringAndDigestingCapability.Value;
                 if (amountDigested > StoredFood) 
                 {
                     return StoredFood;
@@ -152,7 +153,6 @@ namespace Windore.EvolutionSimulation.Objects
 
         public override void Update()
         {
-            return;
             Injuries--;
             BasicUpdate(new Percentage(Properties.GrowthRate.Value), new Percentage(Properties.BackupEnergy.Value), new Percentage(Properties.ReproductionEnergy.Value));
             StoredFood -= EnergyProduction;
@@ -248,10 +248,14 @@ namespace Windore.EvolutionSimulation.Objects
 
         private void MoveRandomly()
         {
-            double posX = Random.Double(Position.X - Properties.Eyesight.Value, Position.X + Properties.Eyesight.Value);
-            double posY = Random.Double(Position.Y - Properties.Eyesight.Value, Position.Y + Properties.Eyesight.Value);
-
-            Move(new Point(posX, posY));
+            if (randomMovementPoint.Equals(new Point(int.MaxValue,int.MinValue)) || randomMovementPoint.DistanceTo(Position) == 0)
+            {
+                double posX = Random.Double(Position.X - Properties.Eyesight.Value, Position.X + Properties.Eyesight.Value);
+                double posY = Random.Double(Position.Y - Properties.Eyesight.Value, Position.Y + Properties.Eyesight.Value);
+                randomMovementPoint = new Point(posX, posY);
+            }
+            
+            Move(randomMovementPoint);
         }
 
         private void Escape()
