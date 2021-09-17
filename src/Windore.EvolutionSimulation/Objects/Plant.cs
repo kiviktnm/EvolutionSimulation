@@ -85,7 +85,7 @@ namespace Windore.EvolutionSimulation.Objects
 
         public override void Update()
         {
-            BasicUpdate(new Percentage(Properties.GrowthRate.Value), new Percentage(Properties.BackupEnergy.Value), new Percentage(Properties.ReproductionEnergy.Value));
+            BasicUpdate(new Percentage(Properties.BackupEnergy.Value), new Percentage(Properties.ReproductionEnergy.Value));
         }
 
         protected override void Reproduce()

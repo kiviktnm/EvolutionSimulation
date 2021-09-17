@@ -88,9 +88,9 @@ namespace Windore.EvolutionSimulation.Objects
 
         public override double EnergyConsumption
         {
-            get => 0.5d * CurrentSize
+            get => 0.1d * (0.5d * CurrentSize
                 + Properties.MovementSpeed.Value / 2d
-                + Properties.Eyesight.Value / 4d
+                + Properties.Eyesight.Value / 8d
                 + Properties.OffensiveCapability.Value * CurrentSize / 3d
                 + Properties.DefensiveCapability.Value * CurrentSize / 3d
                 + Properties.PlantToxicityResistance.Value / 2d
@@ -99,7 +99,7 @@ namespace Windore.EvolutionSimulation.Objects
                 + Properties.TemperatureChangeResistance.Value / 2 * (CurrentSize / 2d)
                 + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentToxicityResistance.Value)
                 + Math.Abs(Properties.OptimalTemperature.Value - Environment.Temperature.Value) / Properties.TemperatureChangeResistance.Value * (CurrentSize / 2d)
-                + Injuries;
+                + Injuries);
         }
 
         private double FoodStoringCapacity => Properties.FoodStoringAndDigestingCapability.Value * EnergyStoringCapacity;
@@ -118,7 +118,7 @@ namespace Windore.EvolutionSimulation.Objects
             {
                 if (StoredFood <= 0) return 0;
 
-                double amountDigested = EnergyConsumption + Properties.FoodStoringAndDigestingCapability.Value;
+                double amountDigested = EnergyConsumption + (Properties.FoodStoringAndDigestingCapability.Value * 0.1d);
                 if (amountDigested > StoredFood) 
                 {
                     return StoredFood;
@@ -154,7 +154,7 @@ namespace Windore.EvolutionSimulation.Objects
         public override void Update()
         {
             Injuries--;
-            BasicUpdate(new Percentage(Properties.GrowthRate.Value), new Percentage(Properties.BackupEnergy.Value), new Percentage(Properties.ReproductionEnergy.Value));
+            BasicUpdate(new Percentage(Properties.BackupEnergy.Value), new Percentage(Properties.ReproductionEnergy.Value));
             StoredFood -= EnergyProduction;
 
             if (CurrentObjective == AnimalObjective.Fight)
@@ -178,6 +178,9 @@ namespace Windore.EvolutionSimulation.Objects
                 }
                 CurrentObjective = AnimalObjective.FindFood;
             }
+
+            if (CurrentObjective == AnimalObjective.EatPlant && currentPlantTarget.IsRemoved) CurrentObjective = AnimalObjective.FindFood;
+            if (CurrentObjective == AnimalObjective.EatAnimal && currentTarget.IsRemoved) CurrentObjective = AnimalObjective.FindFood;
 
             // This is done here because the CurrentObjective may change during LookForFood
             if (CurrentObjective == AnimalObjective.FindFood)
@@ -214,6 +217,13 @@ namespace Windore.EvolutionSimulation.Objects
 
         private void EatAnimal()
         {
+            if (currentTarget.IsRemoved)
+            {
+                CurrentObjective = AnimalObjective.FindFood;
+            }
+
+            Move(currentTarget.Position);
+
             if (Position.DistanceToSqr(currentTarget.Position) <= CurrentSize / 2d + currentTarget.CurrentSize / 2d)
             {
                 defensiveFight = false;
@@ -223,14 +233,17 @@ namespace Windore.EvolutionSimulation.Objects
                 currentTarget.defensiveFight = true;
                 Fight();
             }
-            else
-            {
-                Move(currentPlantTarget.Position);
-            }
         }
 
         private void EatPlant() 
         {
+            if (currentPlantTarget.IsRemoved)
+            {
+                CurrentObjective = AnimalObjective.FindFood;
+            }
+
+            Move(currentPlantTarget.Position);
+
             if (Position.DistanceToSqr(currentPlantTarget.Position) == 0) 
             {
                 double amountEaten = Eat(currentPlantTarget, new Percentage(100 - Properties.CarnivorityTendency.Value));
@@ -239,10 +252,6 @@ namespace Windore.EvolutionSimulation.Objects
                 Injuries += Math.Max(0, poisonEaten - Properties.PlantToxicityResistance.Value);
 
                 CurrentObjective = AnimalObjective.FindFood;
-            }
-            else 
-            {
-                Move(currentPlantTarget.Position);
             }
         }
 
@@ -336,21 +345,24 @@ namespace Windore.EvolutionSimulation.Objects
 
         private Plant LookForPlantFood(List<Plant> plants)
         {
-            /*                 HUOM!
-             * ---------------------------------------
-             * Should animals be able to see plant toxicity?
+            /*  
+             * Animals look for the plant which would give them the most energy. 
              */
             Plant closest = null;
+            double energyNum = 0;
             foreach (Plant plant in plants) 
             {
+                double plantEn = plant.CurrentSize - plant.Position.DistanceToSqr(Position) * 0.1d;
                 if (closest == null) 
                 {
                     closest = plant;
+                    energyNum = plantEn;
                 }
 
-                if (plant.Position.DistanceToSqr(Position) < closest.Position.DistanceToSqr(Position))
+                if (plantEn > energyNum)
                 {
                     closest = plant;
+                    energyNum = plantEn;
                 }
             }
 

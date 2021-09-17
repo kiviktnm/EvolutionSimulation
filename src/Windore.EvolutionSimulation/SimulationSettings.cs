@@ -34,7 +34,6 @@ namespace Windore.EvolutionSimulation
         {
             AdultSize = new Property(20, 1, 1000, 50),
             MutationStrength = new Property(1, 0.5, 40, 5),
-            GrowthRate = new Property(0.01, 0.001, 10, 0.1),
             OffspringAmount = new Property(1, 1, 10, 3),
             ReproductionEnergy = new Property(50, 0, 100, 50),
             BackupEnergy = new Property(20, 0, 100, 20),
@@ -53,10 +52,6 @@ namespace Windore.EvolutionSimulation
         [Setting("Mutation Strength", "Plant Starting Properties")]
         [DoubleSettingValueLimits(0.5, 40)]
         public double MutationStrengthPP { get => startingPlantProperties.MutationStrength.Value; set => startingPlantProperties.MutationStrength.Value = value; }
-
-        [Setting("Growth Rate", "Plant Starting Properties")]
-        [DoubleSettingValueLimits(0.001, 10)]
-        public double GrowthRatePP { get => startingPlantProperties.GrowthRate.Value; set => startingPlantProperties.GrowthRate.Value = value; }
 
         [Setting("Offspring Amount", "Plant Starting Properties")]
         [DoubleSettingValueLimits(1, 10)]
@@ -102,7 +97,6 @@ namespace Windore.EvolutionSimulation
         {
             AdultSize = new Property(20, 1, 1000, 50),
             MutationStrength = new Property(1, 0.5, 40, 5),
-            GrowthRate = new Property(0.01, 0.001, 10, 0.1),
             OffspringAmount = new Property(1, 1, 10, 3),
             ReproductionEnergy = new Property(50, 0, 100, 50),
             BackupEnergy = new Property(20, 0, 100, 20),
@@ -111,7 +105,7 @@ namespace Windore.EvolutionSimulation
             EnvironmentToxicityResistance = new Property(0, 0, 100, 10),
             MovementSpeed = new Property(10, 0, 40, 10),
             CarnivorityTendency = new Property(50, 0, 100, 50),
-            Eyesight = new Property(5, 0, 30, 10),
+            Eyesight = new Property(20, 0, 100, 20),
             OffensiveCapability = new Property(2, 0, 20, 8),
             DefensiveCapability = new Property(2, 0, 20, 8),
             ThreatConsiderationLimit = new Property(10, 0, 40, 15),
@@ -126,10 +120,6 @@ namespace Windore.EvolutionSimulation
         [Setting("Mutation Strength", "Animal Starting Properties")]
         [DoubleSettingValueLimits(0.5, 40)]
         public double MutationStrengthAP { get => startingAnimalProperties.MutationStrength.Value; set => startingAnimalProperties.MutationStrength.Value = value; }
-
-        [Setting("Growth Rate", "Animal Starting Properties")]
-        [DoubleSettingValueLimits(0.001, 10)]
-        public double GrowthRateAP { get => startingAnimalProperties.GrowthRate.Value; set => startingAnimalProperties.GrowthRate.Value = value; }
 
         [Setting("Offspring Amount", "Animal Starting Properties")]
         [DoubleSettingValueLimits(1, 10)]
@@ -164,7 +154,7 @@ namespace Windore.EvolutionSimulation
         public double CarnivorityTendencyAP { get => startingAnimalProperties.CarnivorityTendency.Value; set => startingAnimalProperties.CarnivorityTendency.Value = value; }
 
         [Setting("Eyesight", "Animal Starting Properties")]
-        [DoubleSettingValueLimits(0, 30)]
+        [DoubleSettingValueLimits(0, 100)]
         public double EyesightAP { get => startingAnimalProperties.Eyesight.Value; set => startingAnimalProperties.Eyesight.Value = value; }
 
         [Setting("Offensive Capability", "Animal Starting Properties")]
@@ -217,10 +207,11 @@ namespace Windore.EvolutionSimulation
 
                     Point startingPoint = new Point(scene.Width * 0.50, scene.Height * 0.66);
 
-                    for (int i = 0; i < 15; i++)
+                    for (int i = 0; i < 50; i++)
                     {
                         Plant startingPlant = new Plant(startingPoint, 10, startingPlantProperties);
-                        startingPlant.MoveTowards(SimulationRandom.Point(SimulationSceneSideLength, SimulationSceneSideLength), SimulationSceneSideLength * 0.415d / 4d);
+                        double dist = SimulationRandom.Double(1, SimulationSceneSideLength * 0.415d / 4d);
+                        startingPlant.MoveTowards(SimulationRandom.Point(SimulationSceneSideLength, SimulationSceneSideLength), dist);
 
                         scene.Add(startingPlant);
                     }
@@ -243,7 +234,7 @@ namespace Windore.EvolutionSimulation
             Point startingPoint = new Point(smng.SimulationScene.Width * 0.50, smng.SimulationScene.Height * 0.66);
             Animal startingAnimal = new Animal(startingPoint, 100, startingAnimalProperties)
             {
-                StoredFood = 1000
+                StoredFood = 10
             };
             smng.SimulationScene.Add(startingAnimal);
         }

@@ -21,12 +21,6 @@ namespace Windore.EvolutionSimulation.Objects
         public Property MutationStrength { get => Properties["Mutation Strength"]; set => Properties["Mutation Strength"] = value; }
 
         /// <summary>
-        /// Gets or sets the property defining the speed of growth of the organism
-        /// </summary>
-        [DataPoint("GrowthRate")]
-        public Property GrowthRate { get => Properties["Growth Rate"]; set => Properties["Growth Rate"] = value; }
-
-        /// <summary>
         /// Gets or sets the property defining the amount of offspring
         /// </summary>
         [DataPoint("OffspringAmount")]

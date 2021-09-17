@@ -36,11 +36,12 @@ namespace Windore.EvolutionSimulation.Objects
                 // If the organism runs out of energy it dies o7
                 if (energy < 0)
                 {
+                    energy = 0;
                     Remove();
                 }
             }
         }
-        public double EnergyStoringCapacity { get => CurrentSize * 10; }
+        public double EnergyStoringCapacity { get => CurrentSize * 3; }
         public abstract double MaxSize { get; }
         public abstract double EnergyConsumption { get; }
         public abstract double EnergyProduction { get; }
@@ -49,7 +50,7 @@ namespace Windore.EvolutionSimulation.Objects
         public int Age { get; private set; } = 1;
 
         protected abstract void Reproduce();
-        protected void BasicUpdate(double growthRate, double backupEnergy, double reproductionEnergy) 
+        protected void BasicUpdate(double backupEnergy, double reproductionEnergy) 
         {
             Age++;
             CurrentEnergy += EnergyProduction - EnergyConsumption;
@@ -57,7 +58,7 @@ namespace Windore.EvolutionSimulation.Objects
 
             if (extraEnergy > 0) 
             {
-                extraEnergy = Grow(extraEnergy, growthRate);
+                extraEnergy = Grow(extraEnergy);
                 if (extraEnergy > EnergyStoringCapacity * reproductionEnergy && CurrentSize >= MaxSize) 
                 {
                     Reproduce();
@@ -66,25 +67,14 @@ namespace Windore.EvolutionSimulation.Objects
         }
 
         // Returns extra energy left over
-        private double Grow(double extraEnergy, double growthRate) 
+        private double Grow(double extraEnergy) 
         {
             if (CurrentSize >= MaxSize) return extraEnergy;
 
-            double growth = growthRate * MaxSize;
-            if (extraEnergy > growth)
-            {
-                CurrentEnergy -= growth;
-                CurrentSize += growth;
-
-                return extraEnergy - growth;
-            }
-            else
-            {
-                CurrentEnergy -= extraEnergy;
-                CurrentSize += extraEnergy;
-
-                return 0;
-            }
+            double growth = Math.Min(extraEnergy, MaxSize - CurrentSize);
+            CurrentSize += growth;
+            CurrentEnergy -= growth;
+            return extraEnergy - growth;
         }
     }
 }
