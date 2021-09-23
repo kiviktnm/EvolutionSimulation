@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Windore.Simulations2D.Util;
 using Windore.Simulations2D.Util.SMath;
 
@@ -9,7 +8,7 @@ namespace Windore.EvolutionSimulation.Objects
 {
     public class Animal : Organism
     {
-        public Animal(Point position, double startingEnergy, AnimalProperties properties) : base(new Shape(position, 1, 1, false),
+        public Animal(Point position, double startingEnergy, double startingSize, AnimalProperties properties) : base(new Shape(position, 1, 1, false),
                   new Color(
                       (byte)(255 - (155 * properties.CarnivorityTendency.Value / properties.CarnivorityTendency.MaxValue)),
                       0,
@@ -17,38 +16,9 @@ namespace Windore.EvolutionSimulation.Objects
                   )
         {
             Properties = properties;
-
-            // This rather unoptimized way is used to maximize the stored energy offspring have and minimize their size
-            CurrentSize = 1;
-            startingEnergy--;
-
-            while(startingEnergy > 0)
-            {
-                double energy = EnergyStoringCapacity - CurrentEnergy;
-                if (energy <= 0)
-                {
-                    if (startingEnergy > 1)
-                    {
-                        CurrentSize++;
-                        startingEnergy--;
-                    }
-                    else
-                    {
-                        CurrentSize += startingEnergy;
-                        startingEnergy = 0;
-                    }
-                }
-                else if (energy < startingEnergy) 
-                {
-                    CurrentEnergy += energy;
-                    startingEnergy -= energy;
-                }
-                else
-                {
-                    CurrentEnergy += startingEnergy;
-                    startingEnergy = 0;
-                }
-            }
+            CurrentSize = startingSize;
+            CurrentEnergy = startingEnergy / 2d;
+            StoredFood = startingEnergy / 2d;
         }
 
         private Environment currentEnv;
@@ -71,7 +41,8 @@ namespace Windore.EvolutionSimulation.Objects
         private Animal currentTarget;
         private Plant currentPlantTarget;
         private bool defensiveFight = false;
-        private Point randomMovementPoint = new Point(int.MaxValue, int.MinValue);
+        private Point randomMovementPoint = noneRandomMovePoint; 
+        private static readonly Point noneRandomMovePoint = new Point(int.MaxValue, int.MinValue);
 
         public double MaxInjuries => CurrentSize / 3d;
         private double injs = 0;
@@ -88,21 +59,21 @@ namespace Windore.EvolutionSimulation.Objects
 
         public override double EnergyConsumption
         {
-            get => 0.1d * (0.5d * CurrentSize
+            get => SimulationSettings.ENERGY_COEFFICIENT * (0.5d * CurrentSize
                 + Properties.MovementSpeed.Value / 2d
                 + Properties.Eyesight.Value / 8d
                 + Properties.OffensiveCapability.Value * CurrentSize / 3d
                 + Properties.DefensiveCapability.Value * CurrentSize / 3d
-                + Properties.PlantToxicityResistance.Value / 2d
-                + Properties.FoodStoringAndDigestingCapability.Value * CurrentSize / 100d
+                + Properties.PlantToxicityResistance.Value / 2d * CurrentSize
+                + Properties.FoodDigestingCapability.Value * CurrentSize / 100d
                 + Properties.EnvironmentToxicityResistance.Value / 2
                 + Properties.TemperatureChangeResistance.Value / 2 * (CurrentSize / 2d)
-                + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentToxicityResistance.Value)
+                + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentToxicityResistance.Value) / 10d
                 + Math.Abs(Properties.OptimalTemperature.Value - Environment.Temperature.Value) / Properties.TemperatureChangeResistance.Value * (CurrentSize / 2d)
                 + Injuries);
         }
 
-        private double FoodStoringCapacity => Properties.FoodStoringAndDigestingCapability.Value * EnergyStoringCapacity;
+        private double FoodStoringCapacity => EnergyStoringCapacity;
         private double storedFood = 0;
         public double StoredFood
         {
@@ -118,7 +89,11 @@ namespace Windore.EvolutionSimulation.Objects
             {
                 if (StoredFood <= 0) return 0;
 
-                double amountDigested = EnergyConsumption + (Properties.FoodStoringAndDigestingCapability.Value * 0.1d);
+                // progressive food digesting
+                Percentage foodStoredPercent = Percentage.FromDouble(1d + StoredFood / FoodStoringCapacity); 
+                double extraAmountDigested = StoredFood * new Percentage(Properties.FoodDigestingCapability.Value) * foodStoredPercent;
+
+                double amountDigested = EnergyConsumption + extraAmountDigested;
                 if (amountDigested > StoredFood) 
                 {
                     return StoredFood;
@@ -128,16 +103,18 @@ namespace Windore.EvolutionSimulation.Objects
             }
         }
 
+        private int eggState = 10;
+
         // Returns the amount eaten from an organism
         private double Eat(Organism organism, Percentage energyGainEfficiency)
         {
             double foodToBeEaten = (FoodStoringCapacity - StoredFood) / energyGainEfficiency;
 
-            if (organism.CurrentEnergy + organism.CurrentSize * 0.5d < foodToBeEaten) 
+            if (organism.CurrentEnergy + organism.CurrentSize < foodToBeEaten) 
             {
-                StoredFood += (organism.CurrentEnergy + organism.CurrentSize * 0.5d) * energyGainEfficiency;
+                StoredFood += (organism.CurrentEnergy + organism.CurrentSize) * energyGainEfficiency;
                 organism.Remove();
-                return organism.CurrentEnergy + organism.CurrentSize * 0.5d;
+                return organism.CurrentEnergy + organism.CurrentSize;
             }
             else
             {
@@ -153,6 +130,11 @@ namespace Windore.EvolutionSimulation.Objects
 
         public override void Update()
         {
+            if (eggState-- > 0)
+            {
+                return;
+            }
+
             Injuries--;
             BasicUpdate(new Percentage(Properties.BackupEnergy.Value), new Percentage(Properties.ReproductionEnergy.Value));
             StoredFood -= EnergyProduction;
@@ -174,6 +156,7 @@ namespace Windore.EvolutionSimulation.Objects
                 if (animals.Contains(currentTarget))
                 {
                     Escape();
+                    randomMovementPoint = noneRandomMovePoint;
                     return;
                 }
                 CurrentObjective = AnimalObjective.FindFood;
@@ -200,11 +183,16 @@ namespace Windore.EvolutionSimulation.Objects
                     EatAnimal();
                     break;
             }
+
+            if (CurrentObjective != AnimalObjective.FindFood)
+            {
+                randomMovementPoint = noneRandomMovePoint;
+            }
         }
 
         private void Fight()
         {
-            currentTarget.Injuries += Math.Max(CurrentSize * Properties.OffensiveCapability.Value / 2d - currentTarget.CurrentSize * currentTarget.Properties.DefensiveCapability.Value, 0);
+            currentTarget.Injuries += Math.Max((3 * CurrentSize * Properties.OffensiveCapability.Value) / (2 * currentTarget.CurrentSize * currentTarget.Properties.DefensiveCapability.Value), 0.1);
 
             if (currentTarget.IsRemoved)
             {
@@ -249,7 +237,7 @@ namespace Windore.EvolutionSimulation.Objects
                 double amountEaten = Eat(currentPlantTarget, new Percentage(100 - Properties.CarnivorityTendency.Value));
                 double poisonEaten = currentPlantTarget.Properties.Toxicity.Value * amountEaten;
 
-                Injuries += Math.Max(0, poisonEaten - Properties.PlantToxicityResistance.Value);
+                Injuries += Math.Max(0, poisonEaten - (Properties.PlantToxicityResistance.Value * CurrentSize));
 
                 CurrentObjective = AnimalObjective.FindFood;
             }
@@ -257,10 +245,10 @@ namespace Windore.EvolutionSimulation.Objects
 
         private void MoveRandomly()
         {
-            if (randomMovementPoint.Equals(new Point(int.MaxValue,int.MinValue)) || randomMovementPoint.DistanceTo(Position) == 0)
+            if (randomMovementPoint.Equals(noneRandomMovePoint) || randomMovementPoint.DistanceTo(Position) == 0)
             {
-                double posX = Random.Double(Position.X - Properties.Eyesight.Value, Position.X + Properties.Eyesight.Value);
-                double posY = Random.Double(Position.Y - Properties.Eyesight.Value, Position.Y + Properties.Eyesight.Value);
+                double posX = Random.Double(Position.X - 2d * Properties.Eyesight.Value, Position.X + 2d * Properties.Eyesight.Value);
+                double posY = Random.Double(Position.Y - 2d * Properties.Eyesight.Value, Position.Y + 2d * Properties.Eyesight.Value);
                 randomMovementPoint = new Point(posX, posY);
             }
             
@@ -279,12 +267,11 @@ namespace Windore.EvolutionSimulation.Objects
             MoveTowards(towards, Properties.MovementSpeed.Value);
 
             double dist = oldPos.DistanceTo(Position);
-            CurrentEnergy -= dist * 0.1;
+            CurrentEnergy -= dist * SimulationSettings.ENERGY_COEFFICIENT;
         }
 
         private void LookForFood(List<Animal> animals, List<Plant> plants) 
         {
-            bool prefersAnimals = Properties.CarnivorityTendency.Value > 50;
             bool pureCarnivore = Properties.CarnivorityTendency.Value > 75;
             bool pureHerbivore = Properties.CarnivorityTendency.Value < 25;
 
@@ -294,21 +281,24 @@ namespace Windore.EvolutionSimulation.Objects
             if (animalFoodCanditate == null && plantFoodCanditate == null)
                 return;
 
-            if (animalFoodCanditate == null && !pureCarnivore)
+            if (pureCarnivore && animalFoodCanditate == null) return;
+            if (pureHerbivore && plantFoodCanditate == null) return;
+
+            if (animalFoodCanditate == null)
             {
                 currentPlantTarget = plantFoodCanditate;
                 CurrentObjective = AnimalObjective.EatPlant;
                 return;
             }
 
-            if (plantFoodCanditate == null && !pureHerbivore)
+            if (plantFoodCanditate == null)
             {
                 currentTarget = animalFoodCanditate;
                 CurrentObjective = AnimalObjective.EatAnimal;
                 return;
             }
 
-            if (prefersAnimals)
+            if (SimulationSettings.Instance.SimulationRandom.Boolean(new Percentage(Properties.CarnivorityTendency.Value)))
             {
                 currentTarget = animalFoodCanditate;
                 CurrentObjective = AnimalObjective.EatAnimal;
@@ -398,7 +388,7 @@ namespace Windore.EvolutionSimulation.Objects
 
         private List<Organism> GetOrganismsInSight()
         {
-            return GetSimulationObjectsInRange(Properties.Eyesight.Value + CurrentSize / 2d).Where(obj => obj is Organism).Select(obj => (Organism)obj).ToList();
+            return GetSimulationObjectsInRange(Properties.Eyesight.Value + CurrentSize).Where(obj => obj is Organism).Select(obj => (Organism)obj).ToList();
         }
 
         private List<Animal> GetAnimalsInSight(List<Organism> organisms)
@@ -422,31 +412,34 @@ namespace Windore.EvolutionSimulation.Objects
 
         protected override void Reproduce()
         {
-            CurrentEnergy -= new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity;
-
-            // 20% of energy is lost in reproduction
-            double actualReproductionEnergy = new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity - new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity * 0.2d;
-
-            // Get the integer part of the OffspringAmount
-            int offspringAmount = (int)Math.Floor(Properties.OffspringAmount.Value);
-
-            // Then use the fractional part as a chance of adding an another offspring
-            double offspringFrac = Properties.OffspringAmount.Value - offspringAmount;
-            if (Random.Boolean(Percentage.FromDouble(offspringFrac)))
-                offspringAmount++;
-
-            // Energy is divided among offspring
-            double energyForOneOffspring = actualReproductionEnergy / offspringAmount;
+            double reproEnergy = new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity;
+            CurrentEnergy -= reproEnergy;
 
             List<Animal> newOffspring = new List<Animal>();
 
-            for (int i = 0; i < offspringAmount; i++)
+            int actualOffspringAmount = 0;
+            int integerOffspringAmount = (int)Math.Floor(Properties.OffspringAmount.Value);
+            
+            Percentage percentageForAdditionalOffspring = Percentage.FromDouble(Properties.OffspringAmount.Value - integerOffspringAmount);
+            if (SimulationSettings.Instance.SimulationRandom.Boolean(percentageForAdditionalOffspring))
+                actualOffspringAmount++;
+
+            actualOffspringAmount += integerOffspringAmount;
+
+
+            double energyForOffspring = reproEnergy / actualOffspringAmount;
+
+            while (reproEnergy - energyForOffspring >= 0) 
             {
-                Animal offspring = new Animal(Position, energyForOneOffspring, Properties.CreateMutated());
+                Animal offspring = new Animal(Position, energyForOffspring * 4d/5d, energyForOffspring * 1d/5d, Properties.CreateMutated());
+                offspring.currentEnv = currentEnv;
+                offspring.Generation = Generation + 1;
+
                 Relatives.Add(offspring);
                 offspring.Relatives.Add(this);
                 Scene.Add(offspring);
                 newOffspring.Add(offspring);
+                reproEnergy -= energyForOffspring;
             }
 
             foreach(Animal os in newOffspring)

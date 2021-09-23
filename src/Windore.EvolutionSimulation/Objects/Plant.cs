@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Windore.Simulations2D;
-using Windore.Simulations2D.Data;
 using Windore.Simulations2D.Util;
 using Windore.Simulations2D.Util.SMath;
 
@@ -17,22 +13,22 @@ namespace Windore.EvolutionSimulation.Objects
 
         public override double EnergyConsumption
         {
-            get => 0.5d * CurrentSize
+            get => SimulationSettings.ENERGY_COEFFICIENT * (0.5d * CurrentSize
                 + Properties.Toxicity.Value * CurrentSize
                 + Properties.EnvironmentToxicityResistance.Value / 2
                 + Properties.TemperatureChangeResistance.Value / 2 * (CurrentSize / 2d)
                 + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentToxicityResistance.Value)
-                + Math.Abs(Properties.OptimalTemperature.Value - Environment.Temperature.Value) / Properties.TemperatureChangeResistance.Value * (CurrentSize / 2d);
+                + Math.Abs(Properties.OptimalTemperature.Value - Environment.Temperature.Value) / Properties.TemperatureChangeResistance.Value * (CurrentSize / 2d));
         }
 
         public override double EnergyProduction
         {
             get
             {
-                double baseProduction = Math.Abs(Properties.EnergyProductionInLowNutrientGrounds.Value - Environment.GroundNutrientContent.Value) / 3d * CurrentSize;
+                double baseProduction = Math.Abs(Properties.EnergyProductionInLowNutrientGrounds.Value - Environment.GroundNutrientContent.Value) * Math.Pow(2d/7d * CurrentSize,2);
                 double production = baseProduction;
 
-                foreach (Plant plant in GetSimulationObjectsInRange(CurrentSize * 4).Where(obj => obj is Plant)) 
+                foreach (Plant plant in GetSimulationObjectsInRange(CurrentSize * 2).Where(obj => obj is Plant)) 
                 {
                     // When calculating distance, the size of the plants is taken into account
                     double distance = Position.DistanceTo(plant.Position) - CurrentSize / 2d - plant.CurrentSize / 2d;
@@ -42,45 +38,16 @@ namespace Windore.EvolutionSimulation.Objects
                     production -= baseProduction / 40d / distance;
                 }
 
-                return production;
+                return SimulationSettings.ENERGY_COEFFICIENT * (production);
             }
         }
 
-        public Plant(Point position, double startingEnergy, PlantProperties properties) : base(new Shape(position, 1, 1, true), new Color(0, (byte)(255 - (155 * properties.Toxicity.Value / properties.Toxicity.MaxValue)), 0))
+        public Plant(Point position, double startingEnergy, double startingSize, PlantProperties properties) : base(new Shape(position, 1, 1, true), new Color(0, (byte)(255 - (155 * properties.Toxicity.Value / properties.Toxicity.MaxValue)), 0))
         {
             Properties = properties;
 
-            // This rather unoptimized way is used to maximize the stored energy offspring have and minimize their size
-            CurrentSize = 1;
-            startingEnergy--;
-
-            while (startingEnergy > 0)
-            {
-                double energy = EnergyStoringCapacity - CurrentEnergy;
-                if (energy <= 0)
-                {
-                    if (startingEnergy > 1)
-                    {
-                        CurrentSize++;
-                        startingEnergy--;
-                    }
-                    else
-                    {
-                        CurrentSize += startingEnergy;
-                        startingEnergy = 0;
-                    }
-                }
-                else if (energy < startingEnergy)
-                {
-                    CurrentEnergy += energy;
-                    startingEnergy -= energy;
-                }
-                else
-                {
-                    CurrentEnergy += startingEnergy;
-                    startingEnergy = 0;
-                }
-            }
+            CurrentSize = startingSize;
+            CurrentEnergy = startingEnergy;
         }
 
         public override void Update()
@@ -90,25 +57,24 @@ namespace Windore.EvolutionSimulation.Objects
 
         protected override void Reproduce()
         {
-            CurrentEnergy -= new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity;
+            double reproEnergy = new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity;
+            CurrentEnergy -= reproEnergy;
 
-            // 20% of energy is lost in reproduction
-            double actualReproductionEnergy = new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity - new Percentage(Properties.ReproductionEnergy.Value) * EnergyStoringCapacity * 0.2d;
+            int actualOffspringAmount = 0;
+            int integerOffspringAmount = (int)Math.Floor(Properties.OffspringAmount.Value);
+            
+            Percentage percentageForAdditionalOffspring = Percentage.FromDouble(Properties.OffspringAmount.Value - integerOffspringAmount);
+            if (SimulationSettings.Instance.SimulationRandom.Boolean(percentageForAdditionalOffspring))
+                actualOffspringAmount++;
 
-            // Get the integer part of the OffspringAmount
-            int offspringAmount = (int)Math.Floor(Properties.OffspringAmount.Value);
+            actualOffspringAmount += integerOffspringAmount;
 
-            // Then use the fractional part as a chance of adding an another offspring
-            double offspringFrac = Properties.OffspringAmount.Value - offspringAmount;
-            if (Random.Boolean(Percentage.FromDouble(offspringFrac)))
-                offspringAmount++;
 
-            // Energy is divided among offspring
-            double energyForOneOffspring = actualReproductionEnergy / offspringAmount;
+            double energyForOffspring = reproEnergy / actualOffspringAmount;
 
-            for (int i = 0; i < offspringAmount; i++)
+            while (reproEnergy - energyForOffspring >= 0) 
             {
-                // Bruteforce a position within an environment and one that is not within the parent plant
+                // Bruteforce a position within an environment
                 Point pos;
                 do
                 {
@@ -119,11 +85,12 @@ namespace Windore.EvolutionSimulation.Objects
                 } while (Manager.GetEnvironment(pos) == null);
 
                 // Some energy is lost for the offspring to appear farther away
-                double placingEnergy = (Position.DistanceTo(pos) - CurrentSize / 2d ) / 4d;
+                double placingEnergy = (Position.DistanceTo(pos) - CurrentSize / 2d ) * SimulationSettings.ENERGY_COEFFICIENT / 2d;
+                Plant offspring = new Plant(pos, energyForOffspring * 2d/3d - placingEnergy, energyForOffspring * 1d/3d, Properties.CreateMutated());
+                offspring.Generation = Generation + 1;
 
-                double energy = energyForOneOffspring - Math.Max(0, placingEnergy);
-                Plant offspring = new Plant(pos, energy, Properties.CreateMutated());
                 Scene.Add(offspring);
+                reproEnergy -= energyForOffspring;
             }
         }
     }

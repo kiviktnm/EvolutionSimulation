@@ -54,8 +54,8 @@ namespace Windore.EvolutionSimulation.Objects
         /// <summary>
         /// Gets or sets the property defining the animal's ability to store food and to digest that stored food
         /// </summary>
-        [DataPoint("FoodStoringAndDigestingCapability")]
-        public Property FoodStoringAndDigestingCapability { get => Properties["Food Storing And Digesting Capability"]; set => Properties["Food Storing And Digesting Capability"] = value; }
+        [DataPoint("FoodDigestingCapability")]
+        public Property FoodDigestingCapability { get => Properties["Food Digesting Capability"]; set => Properties["Food Digesting Capability"] = value; }
 
         public AnimalProperties CreateMutated()
         {

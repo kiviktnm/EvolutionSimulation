@@ -63,6 +63,13 @@ namespace Windore.EvolutionSimulation
                 Text = $"Animal Amount: {SimulationSettings.Instance.SimulationManager.AnimalAmount}"
             });
 
+            simWindow.AddSidePanelContent(new TextBlock()
+            {
+                Margin = new Thickness(5),
+                FontSize = 16,
+                Text = $"Duration: {SimulationSettings.Instance.SimulationManager.Duration}"
+            });
+
             StackPanel btnsPanel = new StackPanel
             {
                 Orientation = Avalonia.Layout.Orientation.Horizontal,

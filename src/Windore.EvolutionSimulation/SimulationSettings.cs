@@ -12,13 +12,15 @@ namespace Windore.EvolutionSimulation
 {
     public class SimulationSettings
     {
+        public const double ENERGY_COEFFICIENT = 0.04d; // 0,05 hyvä luku
+
         [Setting("Simulation Area Side Length", "General")]
         [DoubleSettingValueLimits(100, 2000)]
-        public double SimulationSceneSideLength { get; set; } = 1_000;
+        public double SimulationSceneSideLength { get; set; } = 1_500;
 
         [Setting("Mutation Probability", "General")]
         [DoubleSettingValueLimits(0, 100)]
-        public double MutationProbability { get; set; } = 5;
+        public double MutationProbability { get; set; } = 10;
 
         [Setting("Randomness Seed (0 for random seed)", "General")]
         public int RandomnessSeed { get => SimulationRandom.Seed; set => SimulationRandom.Seed = value; }
@@ -34,8 +36,8 @@ namespace Windore.EvolutionSimulation
         {
             AdultSize = new Property(20, 1, 1000, 50),
             MutationStrength = new Property(1, 0.5, 40, 5),
-            OffspringAmount = new Property(1, 1, 10, 3),
             ReproductionEnergy = new Property(50, 0, 100, 50),
+            OffspringAmount = new Property(2, 1, 10, 3),
             BackupEnergy = new Property(20, 0, 100, 20),
             OptimalTemperature = new Property(30, 0, 80, 50),
             TemperatureChangeResistance = new Property(5, 1, 100, 10),
@@ -53,13 +55,14 @@ namespace Windore.EvolutionSimulation
         [DoubleSettingValueLimits(0.5, 40)]
         public double MutationStrengthPP { get => startingPlantProperties.MutationStrength.Value; set => startingPlantProperties.MutationStrength.Value = value; }
 
-        [Setting("Offspring Amount", "Plant Starting Properties")]
-        [DoubleSettingValueLimits(1, 10)]
-        public double OffspringAmountPP { get => startingPlantProperties.OffspringAmount.Value; set => startingPlantProperties.OffspringAmount.Value = value; }
-
         [Setting("Reproduction Energy", "Plant Starting Properties")]
         [DoubleSettingValueLimits(0, 100)]
         public double ReproductionEnergyPP { get => startingPlantProperties.ReproductionEnergy.Value; set => startingPlantProperties.ReproductionEnergy.Value = value; }
+
+        [Setting("Offspring Amount", "Offspring Amount")]
+        [DoubleSettingValueLimits(0, 10)]
+        public double OffspringAmountPP { get => startingPlantProperties.OffspringAmount.Value; set => startingPlantProperties.OffspringAmount.Value = value; }
+
 
         [Setting("Backup Energy", "Plant Starting Properties")]
         [DoubleSettingValueLimits(0, 100)]
@@ -97,8 +100,8 @@ namespace Windore.EvolutionSimulation
         {
             AdultSize = new Property(20, 1, 1000, 50),
             MutationStrength = new Property(1, 0.5, 40, 5),
-            OffspringAmount = new Property(1, 1, 10, 3),
             ReproductionEnergy = new Property(50, 0, 100, 50),
+            OffspringAmount = new Property(2, 1, 10, 3),
             BackupEnergy = new Property(20, 0, 100, 20),
             OptimalTemperature = new Property(30, 0, 80, 50),
             TemperatureChangeResistance = new Property(5, 1, 100, 10),
@@ -110,7 +113,7 @@ namespace Windore.EvolutionSimulation
             DefensiveCapability = new Property(2, 0, 20, 8),
             ThreatConsiderationLimit = new Property(10, 0, 40, 15),
             PlantToxicityResistance = new Property(0, 0, 100, 30),
-            FoodStoringAndDigestingCapability = new Property(10, 1, 30, 10)
+            FoodDigestingCapability = new Property(10, 1, 100, 10)
         };
 
         [Setting("Adult Size", "Animal Starting Properties")]
@@ -122,7 +125,7 @@ namespace Windore.EvolutionSimulation
         public double MutationStrengthAP { get => startingAnimalProperties.MutationStrength.Value; set => startingAnimalProperties.MutationStrength.Value = value; }
 
         [Setting("Offspring Amount", "Animal Starting Properties")]
-        [DoubleSettingValueLimits(1, 10)]
+        [DoubleSettingValueLimits(0, 10)]
         public double OffspringAmountAP { get => startingAnimalProperties.OffspringAmount.Value; set => startingAnimalProperties.OffspringAmount.Value = value; }
 
         [Setting("Reproduction Energy", "Animal Starting Properties")]
@@ -146,7 +149,7 @@ namespace Windore.EvolutionSimulation
         public double EnvironmentToxicityResistanceAP { get => startingAnimalProperties.EnvironmentToxicityResistance.Value; set => startingAnimalProperties.EnvironmentToxicityResistance.Value = value; }
 
         [Setting("Movement Speed", "Animal Starting Properties")]
-        [DoubleSettingValueLimits(0, 20)]
+        [DoubleSettingValueLimits(0, 40)]
         public double MovementSpeedAP { get => startingAnimalProperties.MovementSpeed.Value; set => startingAnimalProperties.MovementSpeed.Value = value; }
 
         [Setting("Carnivority Tendency", "Animal Starting Properties")]
@@ -173,9 +176,9 @@ namespace Windore.EvolutionSimulation
         [DoubleSettingValueLimits(0, 100)]
         public double PlantToxicityResistanceAP { get => startingAnimalProperties.PlantToxicityResistance.Value; set => startingAnimalProperties.PlantToxicityResistance.Value = value; }
 
-        [Setting("Food Storing And Digesting Capability", "Animal Starting Properties")]
-        [DoubleSettingValueLimits(1, 30)]
-        public double FoodStoringAndDigestingCapabilityAP { get => startingAnimalProperties.FoodStoringAndDigestingCapability.Value; set => startingAnimalProperties.FoodStoringAndDigestingCapability.Value = value; }
+        [Setting("Food Digesting Capability", "Animal Starting Properties")]
+        [DoubleSettingValueLimits(1, 100)]
+        public double FoodDigestingCapabilityAP { get => startingAnimalProperties.FoodDigestingCapability.Value; set => startingAnimalProperties.FoodDigestingCapability.Value = value; }
 
         #endregion
 
@@ -207,15 +210,26 @@ namespace Windore.EvolutionSimulation
 
                     Point startingPoint = new Point(scene.Width * 0.50, scene.Height * 0.66);
 
-                    for (int i = 0; i < 50; i++)
+                    for (int i = 0; i < 150; i++)
                     {
-                        Plant startingPlant = new Plant(startingPoint, 10, startingPlantProperties);
-                        double dist = SimulationRandom.Double(1, SimulationSceneSideLength * 0.415d / 4d);
-                        startingPlant.MoveTowards(SimulationRandom.Point(SimulationSceneSideLength, SimulationSceneSideLength), dist);
+                        // Bruteforce a position within an environment
+                        Point pos;
+                        do
+                        {
+                            double range = SimulationSceneSideLength * 0.2075d;
+                            double posX = SimulationRandom.Double(startingPoint.X - range, startingPoint.X + range);
+                            double posY = SimulationRandom.Double(startingPoint.Y - range, startingPoint.Y + range);
+
+                            pos = new Point(posX, posY);
+                        } while (SimulationManager.GetEnvironment(pos) == null);
+
+
+                        double startingEnergy = SimulationRandom.Double(2, 40);
+                        Plant startingPlant = new Plant(pos, startingEnergy, startingEnergy / 2d, startingPlantProperties);
 
                         scene.Add(startingPlant);
                     }
-                    Plant startingCenterPlant = new Plant(startingPoint, 10, startingPlantProperties);
+                    Plant startingCenterPlant = new Plant(startingPoint, 20, 10, startingPlantProperties);
                     scene.Add(startingCenterPlant);
 
                     // This animal will die rather immediatly, but adding it here is necessary since logging requires it to exist
@@ -232,7 +246,7 @@ namespace Windore.EvolutionSimulation
         public void AddStartingAnimal()
         {
             Point startingPoint = new Point(smng.SimulationScene.Width * 0.50, smng.SimulationScene.Height * 0.66);
-            Animal startingAnimal = new Animal(startingPoint, 100, startingAnimalProperties)
+            Animal startingAnimal = new Animal(startingPoint, 20, 10, startingAnimalProperties)
             {
                 StoredFood = 10
             };

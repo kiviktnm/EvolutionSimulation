@@ -21,16 +21,16 @@ namespace Windore.EvolutionSimulation.Objects
         public Property MutationStrength { get => Properties["Mutation Strength"]; set => Properties["Mutation Strength"] = value; }
 
         /// <summary>
-        /// Gets or sets the property defining the amount of offspring
-        /// </summary>
-        [DataPoint("OffspringAmount")]
-        public Property OffspringAmount { get => Properties["Offspring Amount"]; set => Properties["Offspring Amount"] = value; }
-
-        /// <summary>
         /// Gets or sets the property defining the energy the organism uses for reproduction
         /// </summary>
         [DataPoint("ReproductionEnergy")]
         public Property ReproductionEnergy { get => Properties["Reproduction Energy"]; set => Properties["Reproduction Energy"] = value; }
+
+        /// <summary>
+        /// Gets or sets the property defining the average offspring amount
+        /// </summary>
+        [DataPoint("OffspringAmount")]
+        public Property OffspringAmount { get => Properties["Offspring Amount"]; set => Properties["Offspring Amount"] = value; }
 
         /// <summary>
         /// Gets or sets the property defining the percentage of energy to be spared before reproducing

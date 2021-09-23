@@ -41,7 +41,7 @@ namespace Windore.EvolutionSimulation.Objects
                 }
             }
         }
-        public double EnergyStoringCapacity { get => CurrentSize * 3; }
+        public double EnergyStoringCapacity { get => CurrentSize * 2; }
         public abstract double MaxSize { get; }
         public abstract double EnergyConsumption { get; }
         public abstract double EnergyProduction { get; }
@@ -49,21 +49,25 @@ namespace Windore.EvolutionSimulation.Objects
         [DataPoint("Age")]
         public int Age { get; private set; } = 1;
 
+        [DataPoint("Generation")]
+        public int Generation { get; set; } = 0;
+
+        protected double OffspringSize { get => MaxSize * 0.1d; }
         protected abstract void Reproduce();
         protected void BasicUpdate(double backupEnergy, double reproductionEnergy) 
         {
             Age++;
-            CurrentEnergy += EnergyProduction - EnergyConsumption;
             double extraEnergy = CurrentEnergy - (EnergyStoringCapacity * backupEnergy);
 
             if (extraEnergy > 0) 
             {
                 extraEnergy = Grow(extraEnergy);
-                if (extraEnergy > EnergyStoringCapacity * reproductionEnergy && CurrentSize >= MaxSize) 
+                if (extraEnergy > EnergyStoringCapacity * reproductionEnergy) 
                 {
                     Reproduce();
                 }
             }
+            CurrentEnergy += EnergyProduction - EnergyConsumption;
         }
 
         // Returns extra energy left over
@@ -71,7 +75,7 @@ namespace Windore.EvolutionSimulation.Objects
         {
             if (CurrentSize >= MaxSize) return extraEnergy;
 
-            double growth = Math.Min(extraEnergy, MaxSize - CurrentSize);
+            double growth = Math.Min(extraEnergy, 2);
             CurrentSize += growth;
             CurrentEnergy -= growth;
             return extraEnergy - growth;
