@@ -29,7 +29,6 @@ namespace Windore.EvolutionSimulation
         [StringSettingIsPath]
         public string SimulationLogDirectory { get; set; } = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "EvolutionSimulation/");
 
-
         #region Plant Starting Properties
 
         private PlantProperties startingPlantProperties = new PlantProperties
@@ -59,7 +58,7 @@ namespace Windore.EvolutionSimulation
         [DoubleSettingValueLimits(0, 100)]
         public double ReproductionEnergyPP { get => startingPlantProperties.ReproductionEnergy.Value; set => startingPlantProperties.ReproductionEnergy.Value = value; }
 
-        [Setting("Offspring Amount", "Offspring Amount")]
+        [Setting("Offspring Amount", "Plant Starting Properties")]
         [DoubleSettingValueLimits(0, 10)]
         public double OffspringAmountPP { get => startingPlantProperties.OffspringAmount.Value; set => startingPlantProperties.OffspringAmount.Value = value; }
 

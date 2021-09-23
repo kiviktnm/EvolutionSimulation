@@ -32,7 +32,7 @@ namespace Windore.EvolutionSimulation
             simWindow = new SimulationWindow(SimulationSettings.Instance.SimulationManager, true);
             SimulationSettings.Instance.InitSimulation();
 
-            simWindow.SidePanelWidth = 250;
+            simWindow.SidePanelWidth = 310;
             simWindow.Show();
 
             simWindow.Closed += (_, __) => SimulationSettings.Instance.SimulationManager.DataWindowManager.CloseWindows();
