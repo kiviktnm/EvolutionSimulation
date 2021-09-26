@@ -2,7 +2,6 @@
 using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Windore.Simulations2D.Data;
 using Windore.Simulations2D.GUI;
 
@@ -41,9 +40,9 @@ namespace Windore.EvolutionSimulation
             windows.Add(panelWindow);
         }
 
-        public void CloseWindows() 
+        public void CloseWindows()
         {
-            foreach(Window window in windows) 
+            foreach (Window window in windows)
             {
                 window.Close();
             }

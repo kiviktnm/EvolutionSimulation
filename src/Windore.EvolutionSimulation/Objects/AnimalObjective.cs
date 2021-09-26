@@ -2,7 +2,6 @@
 {
     public enum AnimalObjective
     {
-        DoNothing,
         FindFood,
         EatPlant,
         EatAnimal,

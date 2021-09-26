@@ -4,20 +4,21 @@ namespace Windore.EvolutionSimulation
 {
     public class ChangingVariable
     {
-        private readonly ChangingVariable baseChangingVariable;
-        private readonly bool hasBase;
-        private double diffFromBase = 0;
+        private readonly ChangingVariable ParentChangingVariable;
+        private readonly bool hasParent;
+        private double diffFromParent = 0;
         public double Value
-        { 
-            get 
+        {
+            get
             {
-                if (hasBase) return baseChangingVariable.Value + diffFromBase;
-                else return diffFromBase;
+                if (hasParent) return ParentChangingVariable.Value + diffFromParent;
+                else return diffFromParent;
             }
-            set 
+            set
             {
-                if (hasBase) diffFromBase = baseChangingVariable.Value - value;
-                else diffFromBase = value;
+                // Set the diff to be equal the number that should be added to parent's value to reach the set value
+                if (hasParent) diffFromParent = value - ParentChangingVariable.Value;
+                else diffFromParent = value;
             }
         }
         public double MaxValue { get; set; } = 0;
@@ -25,73 +26,77 @@ namespace Windore.EvolutionSimulation
         public double ChangePerUpdate { get; set; } = 0;
         public bool ShouldReverse { get; set; } = true;
 
-        public ChangingVariable(double value, double min, double max, double changePerUpdate) 
+        public ChangingVariable(double value, double min, double max, double changePerUpdate)
         {
             Value = value;
             MaxValue = max;
             MinValue = min;
             ChangePerUpdate = changePerUpdate;
-            hasBase = false;
+            hasParent = false;
         }
 
-        public ChangingVariable(double diffFromBase, double minAbsDiffFromBase, double maxAbsDiffFromBase, double changePerUpdate, ChangingVariable baseValue)
+        public ChangingVariable(double diffFromParent, double minAbsDiffFromParent, double maxAbsDiffFromParent, double changePerUpdate, ChangingVariable ParentValue)
         {
-            this.diffFromBase = diffFromBase; 
-            MaxValue = maxAbsDiffFromBase;
-            MinValue = minAbsDiffFromBase;
+            this.diffFromParent = diffFromParent;
+            MaxValue = maxAbsDiffFromParent;
+            MinValue = minAbsDiffFromParent;
 
-            if (MaxValue < 0) 
+            if (MaxValue < 0)
                 throw new ArgumentException("Maximum absolute difference cannot be less than zero.");
             if (MinValue < 0)
                 throw new ArgumentException("Minimum absolute difference cannot be less than zero.");
 
             ChangePerUpdate = changePerUpdate;
-            baseChangingVariable = baseValue;
-            hasBase = true;
+            ParentChangingVariable = ParentValue;
+            hasParent = true;
         }
 
-        public void Update() 
+        public void Update()
         {
-            diffFromBase += ChangePerUpdate;
-            if (hasBase) 
+            diffFromParent += ChangePerUpdate;
+            if (hasParent)
             {
-                HasBaseUpdateChecks();
+                HasParentUpdateChecks();
             }
-            else 
+            else
             {
                 DefaultUpdateChecks();
             }
         }
 
-        private void HasBaseUpdateChecks() 
+        private void HasParentUpdateChecks()
         {
-            if (Math.Abs(diffFromBase) > MaxValue) 
+            // If absolute difference from Parent is greater than max absolute difference from Parent swap number reverse
+            if (Math.Abs(diffFromParent) > MaxValue)
             {
-                if (diffFromBase > 0)
-                    diffFromBase = MaxValue;
+                if (diffFromParent > 0)
+                    diffFromParent = MaxValue;
                 else
-                    diffFromBase = -MaxValue;
+                    diffFromParent = -MaxValue;
 
                 Reverse();
             }
-            if (Math.Abs(diffFromBase) < MinValue) 
+
+            // Same but for mininum absolute difference
+            if (Math.Abs(diffFromParent) < MinValue)
             {
-                // Swap number "polarity" when min diff is reached
-                if (diffFromBase > 0)
-                    diffFromBase = -MinValue;
+                if (diffFromParent > 0)
+                    diffFromParent = -MinValue;
                 else
-                    diffFromBase = MinValue;
+                    diffFromParent = MinValue;
             }
 
-            if (Value > baseChangingVariable.MaxValue) 
-                Value = baseChangingVariable.MaxValue;
+            // A child changing variable cannot have greater min or max values than its parent, but it should not reverse its change in this case
+            if (Value > ParentChangingVariable.MaxValue)
+                Value = ParentChangingVariable.MaxValue;
 
-            if (Value < baseChangingVariable.MinValue) 
-                Value = baseChangingVariable.MinValue;
+            if (Value < ParentChangingVariable.MinValue)
+                Value = ParentChangingVariable.MinValue;
         }
 
-        private void DefaultUpdateChecks() 
+        private void DefaultUpdateChecks()
         {
+            // Reverse changing direction if max or min value is reached
             if (Value > MaxValue)
             {
                 Value = MaxValue;
@@ -104,7 +109,7 @@ namespace Windore.EvolutionSimulation
             }
         }
 
-        private void Reverse() 
+        private void Reverse()
         {
             if (ShouldReverse)
                 ChangePerUpdate = -ChangePerUpdate;

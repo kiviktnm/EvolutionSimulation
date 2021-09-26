@@ -1,4 +1,3 @@
-using Windore.Simulations2D;
 using System.Collections.Generic;
 using Windore.Simulations2D.Data;
 
@@ -7,7 +6,7 @@ namespace Windore.EvolutionSimulation.Objects
     public abstract class OrganismProperties
     {
         public Dictionary<string, Property> Properties { get; protected set; } = new Dictionary<string, Property>();
-        
+
         /// <summary>
         /// Gets or sets the property defining the fully grown size of the organism
         /// </summary>
@@ -49,7 +48,7 @@ namespace Windore.EvolutionSimulation.Objects
         /// </summary>
         [DataPoint("TemperatureChangeResistance")]
         public Property TemperatureChangeResistance { get => Properties["Temperature Change Resistance"]; set => Properties["Temperature Change Resistance"] = value; }
-        
+
         /// <summary>
         /// Gets or sets the property defining the resistance to changes in temperature
         /// </summary>

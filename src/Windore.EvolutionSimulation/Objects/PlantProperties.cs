@@ -25,11 +25,10 @@ namespace Windore.EvolutionSimulation.Objects
         public Property EnergyProductionInLowNutrientGrounds { get => Properties["Energy Production In Low Nutrient Grounds"]; set => Properties["Energy Production In Low Nutrient Grounds"] = value; }
 
         /// <inheritdoc/>
-        public PlantProperties CreateMutated() 
+        public PlantProperties CreateMutated()
         {
             PlantProperties newProperties = new PlantProperties
             {
-
                 // Copies the dictionary while mutating all properties
                 Properties = Properties.ToDictionary(entry => entry.Key,
                     entry => entry.Value.CreateMutated(new Percentage(MutationStrength.Value)))

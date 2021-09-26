@@ -8,32 +8,33 @@ namespace Windore.EvolutionSimulation.Objects
 {
     public abstract class Organism : SimulationObject
     {
-        protected Manager Manager => SimulationSettings.Instance.SimulationManager;
-        protected SRandom Random => SimulationSettings.Instance.SimulationRandom;
+        public const double ENERGY_STORING_COEFFICIENT = 2d;
+        public const double GROWTH_LIMIT = 2d;
+
+        protected Manager Manager => Simulation.Ins.SimulationManager;
+        protected SRandom Random => Simulation.Ins.SimulationRandom;
         private double energy = 0;
         private double size = 0;
+        private OrganismProperties properties;
 
-        protected Organism(Shape shape, Color color) : base(shape, color)
-        {
-        }
-
-        public double CurrentSize 
+        public double CurrentSize
         {
             get => size;
             set
             {
-                size = Math.Min(MaxSize, value);
+                size = Math.Min(properties.AdultSize.Value, value);
                 Shape = new Shape(Position, size, size, Shape.IsEllipse);
             }
         }
-        public double CurrentEnergy 
+
+        public double CurrentEnergy
         {
             get => energy;
             set
             {
                 energy = Math.Min(EnergyStoringCapacity, value);
 
-                // If the organism runs out of energy it dies o7
+                // If the organism runs out of energy it dies
                 if (energy < 0)
                 {
                     energy = 0;
@@ -41,8 +42,7 @@ namespace Windore.EvolutionSimulation.Objects
                 }
             }
         }
-        public double EnergyStoringCapacity { get => CurrentSize * 2; }
-        public abstract double MaxSize { get; }
+        public double EnergyStoringCapacity { get => CurrentSize * ENERGY_STORING_COEFFICIENT; }
         public abstract double EnergyConsumption { get; }
         public abstract double EnergyProduction { get; }
 
@@ -52,33 +52,52 @@ namespace Windore.EvolutionSimulation.Objects
         [DataPoint("Generation")]
         public int Generation { get; set; } = 0;
 
-        protected double OffspringSize { get => MaxSize * 0.1d; }
-        protected abstract void Reproduce();
-        protected void BasicUpdate(double backupEnergy, double reproductionEnergy) 
+        protected Organism(Shape shape, Color color, OrganismProperties properties) : base(shape, color)
+        {
+            this.properties = properties;
+        }
+
+        protected void BasicUpdate()
         {
             Age++;
-            double extraEnergy = CurrentEnergy - (EnergyStoringCapacity * backupEnergy);
+            CurrentEnergy += EnergyProduction - EnergyConsumption;
+            double extraEnergy = CurrentEnergy - (EnergyStoringCapacity * new Percentage(properties.BackupEnergy.Value));
 
-            if (extraEnergy > 0) 
+            if (extraEnergy > 0)
             {
-                extraEnergy = Grow(extraEnergy);
-                if (extraEnergy > EnergyStoringCapacity * reproductionEnergy) 
+                if (CurrentSize < properties.AdultSize.Value)
+                {
+                    extraEnergy -= Grow(extraEnergy);
+                }
+                if (extraEnergy > EnergyStoringCapacity * new Percentage(properties.ReproductionEnergy.Value))
                 {
                     Reproduce();
                 }
             }
-            CurrentEnergy += EnergyProduction - EnergyConsumption;
         }
 
-        // Returns extra energy left over
-        private double Grow(double extraEnergy) 
-        {
-            if (CurrentSize >= MaxSize) return extraEnergy;
+        protected abstract void Reproduce();
 
-            double growth = Math.Min(extraEnergy, 2);
+        protected int GetOffspringAmount()
+        {
+            int actualOffspringAmount = 0;
+            int integerOffspringAmount = (int)Math.Floor(properties.OffspringAmount.Value);
+
+            Percentage percentageForAdditionalOffspring = Percentage.FromDouble(properties.OffspringAmount.Value - integerOffspringAmount);
+            if (Simulation.Ins.SimulationRandom.Boolean(percentageForAdditionalOffspring))
+                actualOffspringAmount++;
+
+            return actualOffspringAmount + integerOffspringAmount;
+        }
+
+        // Returns energy spent on growing
+        private double Grow(double extraEnergy)
+        {
+            double growth = Math.Min(extraEnergy, GROWTH_LIMIT);
+            growth = Math.Min(growth, properties.AdultSize.Value - CurrentSize);
             CurrentSize += growth;
             CurrentEnergy -= growth;
-            return extraEnergy - growth;
+            return growth;
         }
     }
 }

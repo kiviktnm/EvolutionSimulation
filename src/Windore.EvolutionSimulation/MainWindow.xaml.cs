@@ -2,9 +2,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using System;
 using Windore.Simulations2D.GUI;
-using Avalonia.Threading;
 
 namespace Windore.EvolutionSimulation
 {
@@ -22,20 +22,19 @@ namespace Windore.EvolutionSimulation
             AvaloniaXamlLoader.Load(this);
         }
 
-        private void OnSettingsBtnClick(object sender, RoutedEventArgs e) 
+        private void OnSettingsBtnClick(object sender, RoutedEventArgs e)
         {
-            SimulationSettings.Instance.OpenSettingsWindow();
+            Simulation.Ins.OpenSettingsWindow();
         }
 
-        private void OnStartBtnClick(object sender, RoutedEventArgs e) 
+        private void OnStartBtnClick(object sender, RoutedEventArgs e)
         {
-            simWindow = new SimulationWindow(SimulationSettings.Instance.SimulationManager, true);
-            SimulationSettings.Instance.InitSimulation();
+            simWindow = Simulation.Ins.OpenSimulationWindow();
 
             simWindow.SidePanelWidth = 310;
             simWindow.Show();
 
-            simWindow.Closed += (_, __) => SimulationSettings.Instance.SimulationManager.DataWindowManager.CloseWindows();
+            simWindow.Closed += (_, __) => Simulation.Ins.DataWindowManager.CloseWindows();
 
             DispatcherTimer timer = new DispatcherTimer
             {
@@ -53,21 +52,21 @@ namespace Windore.EvolutionSimulation
             {
                 Margin = new Thickness(5),
                 FontSize = 16,
-                Text = $"Plant Amount: {SimulationSettings.Instance.SimulationManager.PlantAmount}"
+                Text = $"Plant Amount: {Simulation.Ins.SimulationManager.PlantAmount}"
             });
 
             simWindow.AddSidePanelContent(new TextBlock()
             {
                 Margin = new Thickness(5),
                 FontSize = 16,
-                Text = $"Animal Amount: {SimulationSettings.Instance.SimulationManager.AnimalAmount}"
+                Text = $"Animal Amount: {Simulation.Ins.SimulationManager.AnimalAmount}"
             });
 
             simWindow.AddSidePanelContent(new TextBlock()
             {
                 Margin = new Thickness(5),
                 FontSize = 16,
-                Text = $"Duration: {SimulationSettings.Instance.SimulationManager.Duration}"
+                Text = $"Duration: {Simulation.Ins.SimulationManager.Duration}"
             });
 
             StackPanel btnsPanel = new StackPanel
@@ -90,13 +89,13 @@ namespace Windore.EvolutionSimulation
                 Content = "Open All Animals Panel"
             };
 
-            plantPanelBtn.Click += (_, __) => 
+            plantPanelBtn.Click += (_, __) =>
             {
-                SimulationSettings.Instance.SimulationManager.DataWindowManager.OpenWindow(SimulationSettings.Instance.SimulationManager.PlantsData, "All Plants");
+                Simulation.Ins.DataWindowManager.OpenWindow(Simulation.Ins.SimulationManager.PlantsData, "All Plants");
             };
-            animalPanelBtn.Click += (_, __) => 
+            animalPanelBtn.Click += (_, __) =>
             {
-                SimulationSettings.Instance.SimulationManager.DataWindowManager.OpenWindow(SimulationSettings.Instance.SimulationManager.AnimalsData, "All Animals");
+                Simulation.Ins.DataWindowManager.OpenWindow(Simulation.Ins.SimulationManager.AnimalsData, "All Animals");
             };
 
             btnsPanel.Children.Add(plantPanelBtn);
@@ -104,8 +103,7 @@ namespace Windore.EvolutionSimulation
 
             simWindow.AddSidePanelContent(btnsPanel);
 
-            simWindow.AddSidePanelContent(SimulationSettings.Instance.SimulationManager.SelectedObjectPanel);
-
+            simWindow.AddSidePanelContent(Simulation.Ins.GetSelectedObjectPanel());
         }
     }
 }
