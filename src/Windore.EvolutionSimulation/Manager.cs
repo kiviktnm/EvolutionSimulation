@@ -11,9 +11,9 @@ namespace Windore.EvolutionSimulation
 {
     public class Manager : SimulationManager
     {
-        public ChangingVariable BaseEnvToxicity { get; } = new ChangingVariable(10, 0, 100, 0);
-        public ChangingVariable BaseEnvTemperature { get; } = new ChangingVariable(30, 0, 100, 0);
-        public ChangingVariable BaseEnvGroundNutrientContent { get; } = new ChangingVariable(10, 0, 20, 0);
+        public ChangingVariable BaseEnvToxicity { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvToxicity, 0, 100, Simulation.Ins.Settings.BaseEnvToxicityCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
+        public ChangingVariable BaseEnvTemperature { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvTemperature, 0, 100, Simulation.Ins.Settings.BaseEnvTemperatureCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
+        public ChangingVariable BaseEnvGroundNutrientContent { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvGroundNutrientContent, 0, 20, Simulation.Ins.Settings.BaseEnvGroundNutrientContentCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
 
         public Objects.Environment[] Envs { get; set; } = new Objects.Environment[3];
 
@@ -36,7 +36,7 @@ namespace Windore.EvolutionSimulation
             foreach (Objects.Environment env in Envs)
             {
                 Shape testShape = new Shape(position, 1, 1, true);
-                if (env.Shape.Overlaps(testShape))
+                if (testShape.Overlaps(env.Shape))
                 {
                     return env;
                 }
@@ -81,14 +81,14 @@ namespace Windore.EvolutionSimulation
             }
         }
 
-        protected override void BeforeUpdate()
+        public override void BeforeUpdate()
         {
             BaseEnvToxicity.Update();
             BaseEnvTemperature.Update();
             BaseEnvGroundNutrientContent.Update();
         }
 
-        protected override void AfterUpdate()
+        public override void AfterUpdate()
         {
             if (SimulationScene.Age % 70 == 0)
             {

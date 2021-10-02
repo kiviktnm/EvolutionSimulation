@@ -20,7 +20,7 @@ namespace Windore.EvolutionSimulation.Objects
         private double injs = 0;
         private double storedFood = 0;
 
-        public Environment Environment
+        public override Environment Environment
         {
             get
             {

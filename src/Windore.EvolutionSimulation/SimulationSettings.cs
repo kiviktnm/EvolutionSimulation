@@ -28,6 +28,148 @@ namespace Windore.EvolutionSimulation
 
         #endregion
 
+        #region Environment Properties
+
+        #region Base Env
+
+        [Setting("Temperature", "Base Environment Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double BaseEnvTemperature { get; set; } = 30;
+        [Setting("Toxicity", "Base Environment Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double BaseEnvToxicity { get; set; } = 10;
+        [Setting("Ground Nutrient Content", "Base Environment Properties")]
+        [DoubleSettingValueLimits(0, 20)]
+        public double BaseEnvGroundNutrientContent { get; set; } = 10;
+
+        [Setting("Temperature Change Per Update", "Base Environment Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double BaseEnvTemperatureCPU { get; set; } = 0;
+        [Setting("Toxicity Change Per Update", "Base Environment Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double BaseEnvToxicityCPU { get; set; } = 0;
+        [Setting("Ground Nutrient Content Change Per Update", "Base Environment Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double BaseEnvGroundNutrientContentCPU { get; set; } = 0;
+
+        [Setting("Reverse Value Changing", "Base Environment Properties")]
+        public bool BaseEnvReverseChanging { get; set; } = false;
+
+        #endregion
+
+        #region Center Env
+
+        [Setting("Temperature Difference From Base", "Center Environment Properties")]
+        [DoubleSettingValueLimits(-100, 100)]
+        public double CEnvTemperature { get; set; } = 0;
+        [Setting("Toxicity Difference From Base", "Center Environment Properties")]
+        [DoubleSettingValueLimits(-100, 100)]
+        public double CEnvToxicity { get; set; } = 0;
+        [Setting("Ground Nutrient Content Difference From Base", "Center Environment Properties")]
+        [DoubleSettingValueLimits(-20, 20)]
+        public double CEnvGroundNutrientContent { get; set; } = 0;
+
+        [Setting("Temperature Max Difference From Base", "Center Environment Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double CEnvTemperatureMaxDiff { get; set; } = 0;
+        [Setting("Toxicity Max Difference From Base", "Center Environment Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double CEnvToxicityMaxDiff { get; set; } = 0;
+        [Setting("Ground Nutrient Content Max Difference From Base", "Center Environment Properties")]
+        [DoubleSettingValueLimits(0, 20)]
+        public double CEnvGroundNutrientContentMaxDiff { get; set; } = 10;
+
+        [Setting("Temperature Difference Change Per Update", "Center Environment Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double CEnvTemperatureCPU { get; set; } = 0;
+        [Setting("Toxicity Difference Change Per Update", "Center Environment Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double CEnvToxicityCPU { get; set; } = 0;
+        [Setting("Ground Nutrient Content Difference Change Per Update", "Center Environment Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double CEnvGroundNutrientContentCPU { get; set; } = 1d/600d;
+
+        [Setting("Reverse Difference Value Changing", "Center Environment Properties")]
+        public bool CEnvReverseChanging { get; set; } = true;
+
+        #endregion
+    
+        #region Side 1 Env
+
+        [Setting("Temperature Difference From Base", "Side Environment 1 Properties")]
+        [DoubleSettingValueLimits(-100, 100)]
+        public double S1EnvTemperature { get; set; } = 5;
+        [Setting("Toxicity Difference From Base", "Side Environment 1 Properties")]
+        [DoubleSettingValueLimits(-100, 100)]
+        public double S1EnvToxicity { get; set; } = 0;
+        [Setting("Ground Nutrient Content Difference From Base", "Side Environment 1 Properties")]
+        [DoubleSettingValueLimits(-20, 20)]
+        public double S1EnvGroundNutrientContent { get; set; } = 0;
+
+        [Setting("Temperature Max Difference From Base", "Side Environment 1 Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double S1EnvTemperatureMaxDiff { get; set; } = 10;
+        [Setting("Toxicity Max Difference From Base", "Side Environment 1 Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double S1EnvToxicityMaxDiff { get; set; } = 0;
+        [Setting("Ground Nutrient Content Max Difference From Base", "Side Environment 1 Properties")]
+        [DoubleSettingValueLimits(0, 20)]
+        public double S1EnvGroundNutrientContentMaxDiff { get; set; } = 0;
+
+        [Setting("Temperature Difference Change Per Update", "Side Environment 1 Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double S1EnvTemperatureCPU { get; set; } = -1d/600d;
+        [Setting("Toxicity Difference Change Per Update", "Side Environment 1 Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double S1EnvToxicityCPU { get; set; } = 0;
+        [Setting("Ground Nutrient Content Difference Change Per Update", "Side Environment 1 Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double S1EnvGroundNutrientContentCPU { get; set; } = 0;
+
+        [Setting("Reverse Difference Value Changing", "Side Environment 1 Properties")]
+        public bool S1EnvReverseChanging { get; set; } = true;
+
+        #endregion
+      
+        #region Side 2 Env
+
+        [Setting("Temperature Difference From Base", "Side Environment 2 Properties")]
+        [DoubleSettingValueLimits(-100, 100)]
+        public double S2EnvTemperature { get; set; } = 0;
+        [Setting("Toxicity Difference From Base", "Side Environment 2 Properties")]
+        [DoubleSettingValueLimits(-100, 100)]
+        public double S2EnvToxicity { get; set; } = 10;
+        [Setting("Ground Nutrient Content Difference From Base", "Side Environment 2 Properties")]
+        [DoubleSettingValueLimits(-20, 20)]
+        public double S2EnvGroundNutrientContent { get; set; } = 0;
+
+        [Setting("Temperature Max Difference From Base", "Side Environment 2 Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double S2EnvTemperatureMaxDiff { get; set; } = 0;
+        [Setting("Toxicity Max Difference From Base", "Side Environment 2 Properties")]
+        [DoubleSettingValueLimits(0, 100)]
+        public double S2EnvToxicityMaxDiff { get; set; } = 10;
+        [Setting("Ground Nutrient Content Max Difference From Base", "Side Environment 2 Properties")]
+        [DoubleSettingValueLimits(0, 20)]
+        public double S2EnvGroundNutrientContentMaxDiff { get; set; } = 0;
+
+        [Setting("Temperature Difference Change Per Update", "Side Environment 2 Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double S2EnvTemperatureCPU { get; set; } = 0;
+        [Setting("Toxicity Difference Change Per Update", "Side Environment 2 Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double S2EnvToxicityCPU { get; set; } = -1d/600d;
+        [Setting("Ground Nutrient Content  DifferenceChange Per Update", "Side Environment 2 Properties")]
+        [DoubleSettingValueLimits(-1, 1)]
+        public double S2EnvGroundNutrientContentCPU { get; set; } = 0;
+
+        [Setting("Reverse Difference Value Changing", "Side Environment 2 Properties")]
+        public bool S2EnvReverseChanging { get; set; } = true;
+
+        #endregion
+
+        #endregion
+
         #region Plant Starting Properties
 
         public PlantProperties StartingPlantProperties { get; } = new PlantProperties

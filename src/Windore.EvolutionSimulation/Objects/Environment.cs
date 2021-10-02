@@ -31,7 +31,7 @@ namespace Windore.EvolutionSimulation.Objects
 
         public List<SimulationObject> OrganismsCurrentlyInEnv { get; set; } = new List<SimulationObject>();
 
-        public Environment(Point position, double size) : base(new Shape(position, size, size, true), new Color(0, 0, 0)) { }
+        public Environment(Point position, double width, double height) : base(new Shape(position, width, height, true), new Color(0, 0, 0)) { }
 
         public override void Update()
         {
@@ -54,7 +54,7 @@ namespace Windore.EvolutionSimulation.Objects
             {
                 if (obj is Organism org)
                 {
-                    if (org.OverlappingWith(this))
+                    if (org.OverlappingWith(this) && org.Environment == this)
                     {
                         OrganismsCurrentlyInEnv.Add(org);
                         if (org is Animal) AnimalAmount++;

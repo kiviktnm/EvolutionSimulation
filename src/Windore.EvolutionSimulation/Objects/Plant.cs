@@ -7,7 +7,7 @@ namespace Windore.EvolutionSimulation.Objects
 {
     public class Plant : Organism
     {
-        public Environment Environment => Manager.GetEnvironment(Position);
+        public override Environment Environment => Manager.GetEnvironment(Position);
         public PlantProperties Properties { get; }
 
         public override double EnergyConsumption
@@ -17,6 +17,7 @@ namespace Windore.EvolutionSimulation.Objects
                 + Properties.EnvironmentToxicityResistance.Value / 2
                 + Properties.TemperatureChangeResistance.Value / 2 * (CurrentSize / 2d)
                 + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentToxicityResistance.Value)
+                + Properties.EnergyProductionInLowNutrientGrounds.Value * 10d
                 + Math.Abs(Properties.OptimalTemperature.Value - Environment.Temperature.Value) / Properties.TemperatureChangeResistance.Value * (CurrentSize / 2d));
         }
 
@@ -24,7 +25,7 @@ namespace Windore.EvolutionSimulation.Objects
         {
             get
             {
-                double baseProduction = Math.Abs(Properties.EnergyProductionInLowNutrientGrounds.Value - Environment.GroundNutrientContent.Value) * Math.Pow(2d / 7d * CurrentSize, 2);
+                double baseProduction = Math.Max(Properties.EnergyProductionInLowNutrientGrounds.Value, Environment.GroundNutrientContent.Value) * Math.Pow(2d / 7d * CurrentSize, 2);
                 double production = baseProduction;
 
                 foreach (Plant plant in GetSimulationObjectsInRange(CurrentSize * 2).Where(obj => obj is Plant))
@@ -34,7 +35,7 @@ namespace Windore.EvolutionSimulation.Objects
 
                     distance = SMath.Clamp(distance, 0.0001d, Math.Abs(distance));
 
-                    production -= baseProduction / 40d / distance;
+                    production -= baseProduction / 20d / distance;
                 }
 
                 return Simulation.ENERGY_COEFFICIENT * (production);

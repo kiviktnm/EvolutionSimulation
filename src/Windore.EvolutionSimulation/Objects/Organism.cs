@@ -45,6 +45,7 @@ namespace Windore.EvolutionSimulation.Objects
         public double EnergyStoringCapacity { get => CurrentSize * ENERGY_STORING_COEFFICIENT; }
         public abstract double EnergyConsumption { get; }
         public abstract double EnergyProduction { get; }
+        public abstract Environment Environment { get; }
 
         [DataPoint("Age")]
         public int Age { get; private set; } = 1;

@@ -50,6 +50,10 @@ namespace Windore.EvolutionSimulation
         public DataWindowManager DataWindowManager { get; } = new DataWindowManager();
         public SRandom SimulationRandom { get; private set; } = new SRandom(0);
 
+        private Point Env0Position => new Point(Settings.SimulationSceneSideLength * 0.50d, Settings.SimulationSceneSideLength * 0.75d);
+        private double CenterEnvWidth => Settings.SimulationSceneSideLength * 0.2d;
+        private double CenterEnvHeight => Settings.SimulationSceneSideLength * 0.4d;
+
         public SimulationWindow OpenSimulationWindow()
         {
             SimulationWindow simWindow = new SimulationWindow(SimulationManager, Settings.StartPaused);
@@ -171,7 +175,7 @@ namespace Windore.EvolutionSimulation
 
         private void SetUpScene(SimulationScene scene)
         {
-            Point startingPoint = new Point(scene.Width * 0.50, scene.Height * 0.66);
+            Point startingPoint = Env0Position;
 
             // Add 150 randomly placed plants to the scene
             for (int i = 0; i < 150; i++)
@@ -180,7 +184,7 @@ namespace Windore.EvolutionSimulation
                 Point pos;
                 do
                 {
-                    double range = Settings.SimulationSceneSideLength * 0.2075d;
+                    double range = Math.Min(CenterEnvHeight, CenterEnvWidth) / 2d;
                     double posX = SimulationRandom.Double(startingPoint.X - range, startingPoint.X + range);
                     double posY = SimulationRandom.Double(startingPoint.Y - range, startingPoint.Y + range);
 
@@ -209,31 +213,36 @@ namespace Windore.EvolutionSimulation
         private void SetUpEnvs()
         {
             double sideLength = Settings.SimulationSceneSideLength;
-            double envSize = sideLength * 0.415d;
 
-            SimulationManager.Envs[0] = new Objects.Environment(new Point(sideLength * 0.50, sideLength * 0.66), envSize)
+            double sideEnvsWidth = sideLength * 0.4d;
+            double sideEnvsHeight = sideLength * 0.7d;
+
+            Point env1Position = new Point(sideLength * 0.25d, sideLength * 0.45d);
+            Point env2Position = new Point(sideLength * 0.75d, sideLength * 0.45d);
+
+            SimulationManager.Envs[0] = new Objects.Environment(Env0Position, CenterEnvWidth, CenterEnvHeight)
             {
-                Toxicity = new ChangingVariable(0, 0, 0, 0, SimulationManager.BaseEnvToxicity),
-                Temperature = new ChangingVariable(0, 0, 0, 0, SimulationManager.BaseEnvTemperature),
-                GroundNutrientContent = new ChangingVariable(0, 0, 10, -1d / 3000d, SimulationManager.BaseEnvGroundNutrientContent),
-                Name = "Ground Nutrients"
+                Toxicity = new ChangingVariable(Settings.CEnvToxicity, 0, Settings.CEnvToxicityMaxDiff, Settings.CEnvToxicityCPU, SimulationManager.BaseEnvToxicity) { ShouldReverse = Settings.CEnvReverseChanging },
+                Temperature = new ChangingVariable(Settings.CEnvTemperature, 0, Settings.CEnvTemperatureMaxDiff, Settings.CEnvTemperatureCPU, SimulationManager.BaseEnvTemperature) { ShouldReverse = Settings.CEnvReverseChanging },
+                GroundNutrientContent = new ChangingVariable(Settings.CEnvGroundNutrientContent, 0, Settings.CEnvGroundNutrientContentMaxDiff, Settings.CEnvGroundNutrientContentCPU, SimulationManager.BaseEnvGroundNutrientContent) { ShouldReverse = Settings.CEnvReverseChanging },
+                Name = "Center Environment"
             };
 
-            SimulationManager.Envs[1] = new Objects.Environment(new Point(sideLength * 0.75, sideLength * 0.33), envSize)
+            SimulationManager.Envs[1] = new Objects.Environment(env1Position, sideEnvsWidth, sideEnvsHeight)
             {
-                Toxicity = new ChangingVariable(0, 0, 0, 0, SimulationManager.BaseEnvToxicity),
-                Temperature = new ChangingVariable(10, 0, 10, 1 / 3000d, SimulationManager.BaseEnvTemperature),
-                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, SimulationManager.BaseEnvGroundNutrientContent),
-                Name = "Temperature"
+                Toxicity = new ChangingVariable(Settings.S1EnvToxicity, 0, Settings.S1EnvToxicityMaxDiff, Settings.S1EnvToxicityCPU, SimulationManager.BaseEnvToxicity) { ShouldReverse = Settings.S1EnvReverseChanging },
+                Temperature = new ChangingVariable(Settings.S1EnvTemperature, 0, Settings.S1EnvTemperatureMaxDiff, Settings.S1EnvTemperatureCPU, SimulationManager.BaseEnvTemperature) { ShouldReverse = Settings.S1EnvReverseChanging },
+                GroundNutrientContent = new ChangingVariable(Settings.S1EnvGroundNutrientContent, 0, Settings.S1EnvGroundNutrientContentMaxDiff, Settings.S1EnvGroundNutrientContentCPU, SimulationManager.BaseEnvGroundNutrientContent) { ShouldReverse = Settings.S1EnvReverseChanging },
+                Name = "Side Environment 1"
 
             };
 
-            SimulationManager.Envs[2] = new Objects.Environment(new Point(sideLength * 0.25, sideLength * 0.33), envSize)
+            SimulationManager.Envs[2] = new Objects.Environment(env2Position, sideEnvsWidth, sideEnvsHeight)
             {
-                Toxicity = new ChangingVariable(10, 0, 10, -1d / 3000d, SimulationManager.BaseEnvToxicity),
-                Temperature = new ChangingVariable(0, 0, 0, 0, SimulationManager.BaseEnvTemperature),
-                GroundNutrientContent = new ChangingVariable(0, 0, 0, 0, SimulationManager.BaseEnvGroundNutrientContent),
-                Name = "Toxicity"
+                Toxicity = new ChangingVariable(Settings.S2EnvToxicity, 0, Settings.S2EnvToxicityMaxDiff, Settings.S2EnvToxicityCPU, SimulationManager.BaseEnvToxicity) { ShouldReverse = Settings.S2EnvReverseChanging },
+                Temperature = new ChangingVariable(Settings.S2EnvTemperature, 0, Settings.S2EnvTemperatureMaxDiff, Settings.S2EnvTemperatureCPU, SimulationManager.BaseEnvTemperature) { ShouldReverse = Settings.S2EnvReverseChanging },
+                GroundNutrientContent = new ChangingVariable(Settings.S2EnvGroundNutrientContent, 0, Settings.S2EnvGroundNutrientContentMaxDiff, Settings.S2EnvGroundNutrientContentCPU, SimulationManager.BaseEnvGroundNutrientContent) { ShouldReverse = Settings.S2EnvReverseChanging },
+                Name = "Side Environment 2"
             };
 
             SimulationManager.SimulationScene.AddAll(SimulationManager.Envs);
