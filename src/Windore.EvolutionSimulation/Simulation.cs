@@ -17,7 +17,6 @@ namespace Windore.EvolutionSimulation
         public const double ENERGY_COEFFICIENT = 0.04d;
         private static Simulation ins;
 
-        private Manager smng;
         private SettingsManager<SimulationSettings> settingsManager = new SettingsManager<SimulationSettings>();
         private SettingsWindow settingsWindow;
 
@@ -34,21 +33,11 @@ namespace Windore.EvolutionSimulation
             }
         }
 
-        public Manager SimulationManager
-        {
-            get
-            {
-                if (smng == null)
-                {
-                    SetUpSimulationManager();
-                }
-                return smng;
-            }
-        }
+        public Manager SimulationManager { get; private set; }
 
         public SimulationSettings Settings { get; private set; } = new SimulationSettings();
         public DataWindowManager DataWindowManager { get; } = new DataWindowManager();
-        public SRandom SimulationRandom { get; private set; } = new SRandom(0);
+        public SRandom SimulationRandom { get; private set; }
 
         private Point Env0Position => new Point(Settings.SimulationSceneSideLength * 0.50d, Settings.SimulationSceneSideLength * 0.75d);
         private double CenterEnvWidth => Settings.SimulationSceneSideLength * 0.2d;
@@ -56,8 +45,8 @@ namespace Windore.EvolutionSimulation
 
         public SimulationWindow OpenSimulationWindow()
         {
-            SimulationWindow simWindow = new SimulationWindow(SimulationManager, Settings.StartPaused);
             InitSimulation();
+            SimulationWindow simWindow = new SimulationWindow(SimulationManager, Settings.StartPaused);
             return simWindow;
         }
 
@@ -164,13 +153,13 @@ namespace Windore.EvolutionSimulation
         private void SetUpSimulationManager()
         {
             SimulationScene scene = new SimulationScene(Settings.SimulationSceneSideLength, Settings.SimulationSceneSideLength);
-            smng = new Manager(scene);
+            SimulationManager = new Manager(scene);
 
             SetUpEnvs();
             SetUpScene(scene);
 
             // This must be called last, because all objects that have loggable properties must have been added to the simulation.
-            smng.SetUpLogging();
+            SimulationManager.SetUpLogging();
         }
 
         private void SetUpScene(SimulationScene scene)
@@ -251,6 +240,7 @@ namespace Windore.EvolutionSimulation
         private void InitSimulation()
         {
             InitSRandom();
+            SetUpSimulationManager();
             if (settingsWindow != null) settingsWindow.Close();
             WriteSettingsFile();
         }
@@ -260,6 +250,11 @@ namespace Windore.EvolutionSimulation
             if (Settings.RandomnessSeed == 0)
             {
                 SimulationRandom = new SRandom();
+                Settings.RandomnessSeed = SimulationRandom.Seed;
+            }
+            else
+            {
+                SimulationRandom = new SRandom(Settings.RandomnessSeed);
             }
         }
 
