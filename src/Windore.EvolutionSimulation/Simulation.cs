@@ -16,8 +16,6 @@ namespace Windore.EvolutionSimulation
     {
         public const double ENERGY_COEFFICIENT = 0.04d;
         private static Simulation ins;
-
-        private SettingsManager<SimulationSettings> settingsManager = new SettingsManager<SimulationSettings>();
         private SettingsWindow settingsWindow;
 
         public static Simulation Ins
@@ -27,7 +25,7 @@ namespace Windore.EvolutionSimulation
                 if (ins == null)
                 {
                     ins = new Simulation();
-                    ins.settingsManager.SetSettingObject(ins.Settings);
+                    ins.SettingsManager.SetSettingObject(ins.Settings);
                 }
                 return ins;
             }
@@ -35,6 +33,7 @@ namespace Windore.EvolutionSimulation
 
         public Manager SimulationManager { get; private set; }
 
+        public SettingsManager<SimulationSettings> SettingsManager { get; } = new SettingsManager<SimulationSettings>();
         public SimulationSettings Settings { get; private set; } = new SimulationSettings();
         public DataWindowManager DataWindowManager { get; } = new DataWindowManager();
         public SRandom SimulationRandom { get; private set; }
@@ -56,7 +55,7 @@ namespace Windore.EvolutionSimulation
             if (settingsWindow != null)
                 settingsWindow.Close();
 
-            settingsWindow = new SettingsWindow(settingsManager);
+            settingsWindow = new SettingsWindow(SettingsManager);
             settingsWindow.Show();
         }
 
@@ -261,7 +260,7 @@ namespace Windore.EvolutionSimulation
         private void WriteSettingsFile()
         {
             Directory.CreateDirectory(Settings.SimulationLogDirectory);
-            string text = settingsManager.GenerateSettingsString();
+            string text = SettingsManager.GenerateSettingsString();
 
             string fileName = Path.Combine(Settings.SimulationLogDirectory, "simulation-settings-file");
 

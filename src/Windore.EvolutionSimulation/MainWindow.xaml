@@ -15,5 +15,7 @@
         <TextBlock Text="Evolution Simulation I" FontSize="25" TextAlignment="Center"/>
         <Button Content="Start" Width="200" Height="30" Click="OnStartBtnClick"/>
         <Button Content="Settings" Width="200" Height="30" Click="OnSettingsBtnClick"/>
+        <Button Content="Load settings from a file" Width="200" Height="30" Click="OnLoadSettingsFileBtnClick"/>
+        <TextBlock Name="loadResultTB" Text="" FontSize="14" TextAlignment="Center" TextWrapping="Wrap"/>
     </StackPanel>
 </Window>

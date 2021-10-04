@@ -2,8 +2,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Threading;
 using System;
+using System.IO;
 using Windore.Simulations2D.GUI;
 
 namespace Windore.EvolutionSimulation
@@ -11,6 +13,7 @@ namespace Windore.EvolutionSimulation
     public class MainWindow : Window
     {
         private SimulationWindow simWindow;
+        private TextBlock loadResultTB;
 
         public MainWindow()
         {
@@ -20,11 +23,35 @@ namespace Windore.EvolutionSimulation
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+            loadResultTB = this.Find<TextBlock>("loadResultTB");
         }
 
         private void OnSettingsBtnClick(object sender, RoutedEventArgs e)
         {
             Simulation.Ins.OpenSettingsWindow();
+        }
+
+        private async void OnLoadSettingsFileBtnClick(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog() { AllowMultiple = false };
+            string[] result = await dialog.ShowAsync(this);
+
+            if (result == null) return;
+
+            string settingsFile = result[0];
+
+            try
+            {
+                string settingsString = File.ReadAllText(settingsFile);
+                Simulation.Ins.SettingsManager.ParseSettingsString(settingsString);
+                loadResultTB.Text = "Loaded settings successfully.";
+                loadResultTB.Foreground = Brushes.Green;
+            }
+            catch (Exception)
+            {
+                loadResultTB.Text = "Failed to load settings from a file. Maybe the file is incorrectly formatted.";
+                loadResultTB.Foreground = Brushes.Red;
+            }
         }
 
         private void OnStartBtnClick(object sender, RoutedEventArgs e)
