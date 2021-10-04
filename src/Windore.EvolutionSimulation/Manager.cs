@@ -77,10 +77,10 @@ namespace Windore.EvolutionSimulation
             addedPlantTitles.AddRange(envTitles);
             addedAnimalTitles.AddRange(envTitles);
 
-            for (int i = 0; i < Envs.Length; i++)
+            foreach(Objects.Environment env in Envs)
             {
-                loggers[$"Env{i}Plants"] = new FileLogger(Path.Combine(Simulation.Ins.Settings.SimulationLogDirectory, $"env{i}-plants"), addedPlantTitles.ToArray());
-                loggers[$"Env{i}Animals"] = new FileLogger(Path.Combine(Simulation.Ins.Settings.SimulationLogDirectory, $"env{i}-animals"), addedAnimalTitles.ToArray());
+                loggers[$"Env-{env.Name}-Plants"] = new FileLogger(Path.Combine(Simulation.Ins.Settings.SimulationLogDirectory, $"env-{env.Name}-plants"), addedPlantTitles.ToArray());
+                loggers[$"Env-{env.Name}-Animals"] = new FileLogger(Path.Combine(Simulation.Ins.Settings.SimulationLogDirectory, $"env-{env.Name}-animals"), addedAnimalTitles.ToArray());
             }
         }
 
@@ -138,29 +138,14 @@ namespace Windore.EvolutionSimulation
             lock (plantsDataLock)
                 LogAllPlants();
 
-            for (int i = 0; i < Envs.Length; i++)
+            foreach (Objects.Environment env in Envs)
             {
-                LogEnvPlants(i);
-                LogEnvAnimals(i);
+                env.CollectPlantData(collector);
+                loggers[$"Env-{env.Name}-Plants"].Log(env.GetData(DataType.Plant));
+        
+                env.CollectAnimalData(collector);
+                loggers[$"Env-{env.Name}-Animals"].Log(env.GetData(DataType.Animal));
             }
-        }
-
-        private void LogEnvPlants(int envNumber)
-        {
-            Objects.Environment env = Envs[envNumber];
-
-            env.CollectPlantData(collector);
-
-            loggers[$"Env{envNumber}Plants"].Log(env.GetData(DataType.Plant));
-        }
-
-        private void LogEnvAnimals(int envNumber)
-        {
-            Objects.Environment env = Envs[envNumber];
-
-            env.CollectAnimalData(collector);
-            
-            loggers[$"Env{envNumber}Animals"].Log(env.GetData(DataType.Animal));
         }
 
         private void LogAllPlants()
