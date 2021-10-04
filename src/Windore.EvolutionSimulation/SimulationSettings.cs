@@ -44,7 +44,7 @@ namespace Windore.EvolutionSimulation
 
         [Setting("Temperature Change Per Update", "Base Environment Properties")]
         [DoubleSettingValueLimits(-1, 1)]
-        public double BaseEnvTemperatureCPU { get; set; } = 0;
+        public double BaseEnvTemperatureCPU { get; set; } = 0.0002;
         [Setting("Toxicity Change Per Update", "Base Environment Properties")]
         [DoubleSettingValueLimits(-1, 1)]
         public double BaseEnvToxicityCPU { get; set; } = 0;
@@ -87,7 +87,7 @@ namespace Windore.EvolutionSimulation
         public double CEnvToxicityCPU { get; set; } = 0;
         [Setting("Ground Nutrient Content Difference Change Per Update", "Center Environment Properties")]
         [DoubleSettingValueLimits(-1, 1)]
-        public double CEnvGroundNutrientContentCPU { get; set; } = 1d/600d;
+        public double CEnvGroundNutrientContentCPU { get; set; } = -0.0001d;
 
         [Setting("Reverse Difference Value Changing", "Center Environment Properties")]
         public bool CEnvReverseChanging { get; set; } = true;
@@ -108,7 +108,7 @@ namespace Windore.EvolutionSimulation
 
         [Setting("Temperature Max Difference From Base", "Side Environment 1 Properties")]
         [DoubleSettingValueLimits(0, 100)]
-        public double S1EnvTemperatureMaxDiff { get; set; } = 10;
+        public double S1EnvTemperatureMaxDiff { get; set; } = 20;
         [Setting("Toxicity Max Difference From Base", "Side Environment 1 Properties")]
         [DoubleSettingValueLimits(0, 100)]
         public double S1EnvToxicityMaxDiff { get; set; } = 0;
@@ -118,7 +118,7 @@ namespace Windore.EvolutionSimulation
 
         [Setting("Temperature Difference Change Per Update", "Side Environment 1 Properties")]
         [DoubleSettingValueLimits(-1, 1)]
-        public double S1EnvTemperatureCPU { get; set; } = -1d/600d;
+        public double S1EnvTemperatureCPU { get; set; } = -0.002d;
         [Setting("Toxicity Difference Change Per Update", "Side Environment 1 Properties")]
         [DoubleSettingValueLimits(-1, 1)]
         public double S1EnvToxicityCPU { get; set; } = 0;
@@ -138,7 +138,7 @@ namespace Windore.EvolutionSimulation
         public double S2EnvTemperature { get; set; } = 0;
         [Setting("Toxicity Difference From Base", "Side Environment 2 Properties")]
         [DoubleSettingValueLimits(-100, 100)]
-        public double S2EnvToxicity { get; set; } = 10;
+        public double S2EnvToxicity { get; set; } = -10;
         [Setting("Ground Nutrient Content Difference From Base", "Side Environment 2 Properties")]
         [DoubleSettingValueLimits(-20, 20)]
         public double S2EnvGroundNutrientContent { get; set; } = 0;
@@ -148,7 +148,7 @@ namespace Windore.EvolutionSimulation
         public double S2EnvTemperatureMaxDiff { get; set; } = 0;
         [Setting("Toxicity Max Difference From Base", "Side Environment 2 Properties")]
         [DoubleSettingValueLimits(0, 100)]
-        public double S2EnvToxicityMaxDiff { get; set; } = 10;
+        public double S2EnvToxicityMaxDiff { get; set; } = 40;
         [Setting("Ground Nutrient Content Max Difference From Base", "Side Environment 2 Properties")]
         [DoubleSettingValueLimits(0, 20)]
         public double S2EnvGroundNutrientContentMaxDiff { get; set; } = 0;
@@ -158,7 +158,7 @@ namespace Windore.EvolutionSimulation
         public double S2EnvTemperatureCPU { get; set; } = 0;
         [Setting("Toxicity Difference Change Per Update", "Side Environment 2 Properties")]
         [DoubleSettingValueLimits(-1, 1)]
-        public double S2EnvToxicityCPU { get; set; } = -1d/600d;
+        public double S2EnvToxicityCPU { get; set; } = 0.002d;
         [Setting("Ground Nutrient Content  DifferenceChange Per Update", "Side Environment 2 Properties")]
         [DoubleSettingValueLimits(-1, 1)]
         public double S2EnvGroundNutrientContentCPU { get; set; } = 0;
@@ -178,13 +178,13 @@ namespace Windore.EvolutionSimulation
             MutationStrength = new Property(1, 0.5, 40, 5),
             ReproductionEnergy = new Property(50, 0, 100, 50),
             OffspringAmount = new Property(2, 1, 10, 3),
-            BackupEnergy = new Property(20, 0, 100, 20),
+            BackupEnergy = new Property(10, 0, 100, 20),
             OptimalTemperature = new Property(30, 0, 80, 50),
             TemperatureChangeResistance = new Property(5, 1, 100, 10),
             EnvironmentToxicityResistance = new Property(0, 0, 100, 10),
             Toxicity = new Property(0, 0, 100, 10),
             ReproductionArea = new Property(40, 1, 300, 50),
-            EnergyProductionInLowNutrientGrounds = new Property(0, 0, 20, 5)
+            EnergyProductionInLowNutrientGrounds = new Property(2, 0, 20, 5)
         };
 
         [Setting("Adult Size", "Plant Starting Properties")]
@@ -242,7 +242,7 @@ namespace Windore.EvolutionSimulation
             MutationStrength = new Property(1, 0.5, 40, 5),
             ReproductionEnergy = new Property(50, 0, 100, 50),
             OffspringAmount = new Property(2, 1, 10, 3),
-            BackupEnergy = new Property(20, 0, 100, 20),
+            BackupEnergy = new Property(10, 0, 100, 20),
             OptimalTemperature = new Property(30, 0, 80, 50),
             TemperatureChangeResistance = new Property(5, 1, 100, 10),
             EnvironmentToxicityResistance = new Property(0, 0, 100, 10),
