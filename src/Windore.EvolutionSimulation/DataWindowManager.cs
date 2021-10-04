@@ -29,7 +29,7 @@ namespace Windore.EvolutionSimulation
             };
 
             DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(0.1);
+            timer.Interval = TimeSpan.FromSeconds(5);
             timer.Tick += (_, __) => dataView.Data = source.GetData(type);
             timer.Start();
 
