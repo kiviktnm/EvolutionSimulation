@@ -91,11 +91,11 @@ namespace Windore.EvolutionSimulation
 
             plantPanelBtn.Click += (_, __) =>
             {
-                Simulation.Ins.DataWindowManager.OpenWindow(Simulation.Ins.SimulationManager.PlantsData, "All Plants");
+                Simulation.Ins.DataWindowManager.OpenWindow(Simulation.Ins.SimulationManager, "All Plants", DataType.Plant);
             };
             animalPanelBtn.Click += (_, __) =>
             {
-                Simulation.Ins.DataWindowManager.OpenWindow(Simulation.Ins.SimulationManager.AnimalsData, "All Animals");
+                Simulation.Ins.DataWindowManager.OpenWindow(Simulation.Ins.SimulationManager, "All Animals", DataType.Animal);
             };
 
             btnsPanel.Children.Add(plantPanelBtn);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Windore.Simulations2D;
 using Windore.Simulations2D.Data;
 using Windore.Simulations2D.Util.SMath;
@@ -6,8 +7,13 @@ using Windore.Simulations2D.Util;
 
 namespace Windore.EvolutionSimulation.Objects
 {
-    public class Environment : SimulationObject
+    public class Environment : SimulationObject, IDataSource
     {
+        private object plantsDataLock = new object();
+        private object animalsDataLock = new object();
+        private Dictionary<string, DataCollector.Data> plantsData = new Dictionary<string, DataCollector.Data>();
+        private Dictionary<string, DataCollector.Data> animalsData = new Dictionary<string, DataCollector.Data>();
+
         public string Name { get; set; }
         public ChangingVariable Toxicity { get; set; }
         public ChangingVariable Temperature { get; set; }
@@ -26,9 +32,6 @@ namespace Windore.EvolutionSimulation.Objects
         [DataPoint("EnvironvementGroundNutrientContent")]
         public double GroundNutrientContentDC { get => GroundNutrientContent.Value; }
 
-        public Dictionary<string, DataCollector.Data> PlantsData { get; set; } = new Dictionary<string, DataCollector.Data>();
-        public Dictionary<string, DataCollector.Data> AnimalsData { get; set; } = new Dictionary<string, DataCollector.Data>();
-
         public List<SimulationObject> OrganismsCurrentlyInEnv { get; set; } = new List<SimulationObject>();
 
         public Environment(Point position, double width, double height) : base(new Shape(position, width, height, true), new Color(0, 0, 0)) { }
@@ -40,8 +43,92 @@ namespace Windore.EvolutionSimulation.Objects
             GroundNutrientContent.Update();
 
             Color = new Color((byte)(255 * (Temperature.Value / 100)), (byte)(255 * (GroundNutrientContent.Value / 20)), (byte)(255 * (Toxicity.Value / 100)));
-            
+
             GetOrganismsInEnv();
+        }
+
+        public Dictionary<string, DataCollector.Data> GetData(DataType type)
+        {
+            switch (type)
+            {
+                case DataType.Animal:
+                    lock (animalsDataLock)
+                    {
+                        Dictionary<string, DataCollector.Data> data = new Dictionary<string, DataCollector.Data>();
+                        foreach (string key in animalsData.Keys)
+                            data.Add(key, animalsData[key].DeepCopy());
+                        return data;
+                    }
+
+                case DataType.Plant:
+                    lock (plantsDataLock)
+                    {
+                        Dictionary<string, DataCollector.Data> pData = new Dictionary<string, DataCollector.Data>();
+                        foreach (string key in plantsData.Keys)
+                            pData.Add(key, plantsData[key].DeepCopy());
+                        return pData;
+                    }
+                default:
+                    return new Dictionary<string, DataCollector.Data>();
+            }
+        }
+
+        public void CollectPlantData(DataCollector collector)
+        {
+            lock (plantsDataLock)
+            {
+                plantsData.Clear();
+
+                // Collect and add plant properties to data
+                collector.CollectData(
+                    OrganismsCurrentlyInEnv
+                    .Where(obj => obj is Plant)
+                    .Select(obj => (Plant)obj)
+                    .Select(plant => plant.Properties)
+                ).ToList().ForEach(obj => plantsData.Add(obj.Key, obj.Value));
+
+                // Same for organism values
+                collector.CollectData(
+                    OrganismsCurrentlyInEnv
+                    .Where(obj => obj is Plant)
+                    .Select(obj => (Organism)obj)
+                ).ToList().ForEach(obj => plantsData.Add(obj.Key, obj.Value));
+
+                // And manager values
+                collector.CollectSingleValueData(Simulation.Ins.SimulationManager).ToList().ForEach(obj => plantsData.Add(obj.Key, obj.Value));
+
+                // Also log the environment values
+                collector.CollectSingleValueData(this).ToList().ForEach(obj => plantsData.Add(obj.Key, obj.Value));
+            }
+        }
+
+        public void CollectAnimalData(DataCollector collector)
+        {
+            lock (animalsDataLock)
+            {
+                animalsData.Clear();
+
+                // Collect and add animal properties to data
+                collector.CollectData(
+                    OrganismsCurrentlyInEnv
+                    .Where(obj => obj is Animal)
+                    .Select(obj => (Animal)obj)
+                    .Select(animal => animal.Properties)
+                ).ToList().ForEach(obj => animalsData.Add(obj.Key, obj.Value));
+
+                // Same for organism values
+                collector.CollectData(
+                    OrganismsCurrentlyInEnv
+                    .Where(obj => obj is Animal)
+                    .Select(obj => (Organism)obj)
+                ).ToList().ForEach(obj => animalsData.Add(obj.Key, obj.Value));
+
+                // And manager values
+                collector.CollectSingleValueData(Simulation.Ins.SimulationManager).ToList().ForEach(obj => animalsData.Add(obj.Key, obj.Value));
+
+                // Also log the environment values
+                collector.CollectSingleValueData(this).ToList().ForEach(obj => animalsData.Add(obj.Key, obj.Value));
+            }
         }
 
         private void GetOrganismsInEnv()

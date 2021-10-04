@@ -149,12 +149,12 @@ namespace Windore.EvolutionSimulation
 
             plantPanelBtn.Click += (_, __) =>
             {
-                DataWindowManager.OpenWindow(env.PlantsData, $"{env.Name} Environment Plants");
+                DataWindowManager.OpenWindow(env, $"{env.Name} Plants", DataType.Plant);
             };
 
             animalPanelBtn.Click += (_, __) =>
             {
-                DataWindowManager.OpenWindow(env.AnimalsData, $"{env.Name} Environment Animals");
+                DataWindowManager.OpenWindow(env, $"{env.Name} Animals", DataType.Animal);
             };
 
             panel.Children.Add(plantPanelBtn);

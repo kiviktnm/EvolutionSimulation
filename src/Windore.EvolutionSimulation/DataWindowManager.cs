@@ -11,11 +11,11 @@ namespace Windore.EvolutionSimulation
     {
         private readonly List<Window> windows = new List<Window>();
 
-        public void OpenWindow(Dictionary<string, DataCollector.Data> data, string title)
+        public void OpenWindow(IDataSource source, string title, DataType type)
         {
             SimulationDataView dataView = new SimulationDataView
             {
-                Data = data,
+                Data = source.GetData(type),
                 HideSingleValueData = false,
                 Rounding = true
             };
@@ -29,8 +29,8 @@ namespace Windore.EvolutionSimulation
             };
 
             DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(5);
-            timer.Tick += (_, __) => dataView.Data = data;
+            timer.Interval = TimeSpan.FromSeconds(0.1);
+            timer.Tick += (_, __) => dataView.Data = source.GetData(type);
             timer.Start();
 
             panelWindow.Closed += (_, __) => timer.Stop();

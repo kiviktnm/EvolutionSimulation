@@ -9,8 +9,13 @@ using Windore.Simulations2D.Util.SMath;
 
 namespace Windore.EvolutionSimulation
 {
-    public class Manager : SimulationManager
+    public class Manager : SimulationManager, IDataSource
     {
+        private object plantsDataLock = new object();
+        private object animalsDataLock = new object();
+        private Dictionary<string, DataCollector.Data> plantsData = new Dictionary<string, DataCollector.Data>();
+        private Dictionary<string, DataCollector.Data> animalsData = new Dictionary<string, DataCollector.Data>();
+
         public ChangingVariable BaseEnvToxicity { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvToxicity, 0, 100, Simulation.Ins.Settings.BaseEnvToxicityCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
         public ChangingVariable BaseEnvTemperature { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvTemperature, 0, 100, Simulation.Ins.Settings.BaseEnvTemperatureCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
         public ChangingVariable BaseEnvGroundNutrientContent { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvGroundNutrientContent, 0, 20, Simulation.Ins.Settings.BaseEnvGroundNutrientContentCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
@@ -24,8 +29,6 @@ namespace Windore.EvolutionSimulation
         [DataPoint("AnimalAmount")]
         public int AnimalAmount { get => SimulationScene.SimulationObjects.Where(obj => obj is Animal).Count(); }
 
-        public Dictionary<string, DataCollector.Data> PlantsData { get; private set; } = new Dictionary<string, DataCollector.Data>();
-        public Dictionary<string, DataCollector.Data> AnimalsData { get; private set; } = new Dictionary<string, DataCollector.Data>();
         private DataCollector collector = new DataCollector();
         private Dictionary<string, FileLogger> loggers = new Dictionary<string, FileLogger>();
 
@@ -96,6 +99,32 @@ namespace Windore.EvolutionSimulation
             }
         }
 
+        public Dictionary<string, DataCollector.Data> GetData(DataType type)
+        {
+            switch (type)
+            {
+                case DataType.Animal:
+                    lock (animalsDataLock)
+                    {
+                        Dictionary<string, DataCollector.Data> data = new Dictionary<string, DataCollector.Data>();
+                        foreach (string key in animalsData.Keys)
+                            data.Add(key, animalsData[key].DeepCopy());
+                        return data;
+                    }
+
+                case DataType.Plant:
+                    lock (plantsDataLock)
+                    {
+                        Dictionary<string, DataCollector.Data> pData = new Dictionary<string, DataCollector.Data>();
+                        foreach (string key in plantsData.Keys)
+                            pData.Add(key, plantsData[key].DeepCopy());
+                        return pData;
+                    }
+                default:
+                    return new Dictionary<string, DataCollector.Data>();
+            }
+        }
+
         private void Log()
         {
             if (loggers.Count == 0)
@@ -103,8 +132,11 @@ namespace Windore.EvolutionSimulation
                 throw new Exception("Cannot log data because logging has not been set up yet.");
             }
 
-            LogAllAnimals();
-            LogAllPlants();
+            lock (animalsDataLock)
+                LogAllAnimals();
+                
+            lock (plantsDataLock)
+                LogAllPlants();
 
             for (int i = 0; i < Envs.Length; i++)
             {
@@ -117,65 +149,23 @@ namespace Windore.EvolutionSimulation
         {
             Objects.Environment env = Envs[envNumber];
 
-            env.PlantsData.Clear();
+            env.CollectPlantData(collector);
 
-            // Collect and add plant properties to data
-            collector.CollectData(
-                env.OrganismsCurrentlyInEnv
-                .Where(obj => obj is Plant)
-                .Select(obj => (Plant)obj)
-                .Select(plant => plant.Properties)
-            ).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
-
-            // Same for organism values
-            collector.CollectData(
-                env.OrganismsCurrentlyInEnv
-                .Where(obj => obj is Plant)
-                .Select(obj => (Organism)obj)
-            ).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
-
-            // And manager values
-            collector.CollectSingleValueData(this).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
-
-            // Also log the environment values
-            collector.CollectSingleValueData(env).ToList().ForEach(obj => env.PlantsData.Add(obj.Key, obj.Value));
-
-            loggers[$"Env{envNumber}Plants"].Log(env.PlantsData);
+            loggers[$"Env{envNumber}Plants"].Log(env.GetData(DataType.Plant));
         }
 
         private void LogEnvAnimals(int envNumber)
         {
             Objects.Environment env = Envs[envNumber];
 
-            env.AnimalsData.Clear();
-
-            // Collect and add animal properties to data
-            collector.CollectData(
-                env.OrganismsCurrentlyInEnv
-                .Where(obj => obj is Animal)
-                .Select(obj => (Animal)obj)
-                .Select(animal => animal.Properties)
-            ).ToList().ForEach(obj => env.AnimalsData.Add(obj.Key, obj.Value));
-
-            // Same for organism values
-            collector.CollectData(
-                env.OrganismsCurrentlyInEnv
-                .Where(obj => obj is Animal)
-                .Select(obj => (Organism)obj)
-            ).ToList().ForEach(obj => env.AnimalsData.Add(obj.Key, obj.Value));
-
-            // And manager values
-            collector.CollectSingleValueData(this).ToList().ForEach(obj => env.AnimalsData.Add(obj.Key, obj.Value));
-
-            // Also log the environment values
-            collector.CollectSingleValueData(env).ToList().ForEach(obj => env.AnimalsData.Add(obj.Key, obj.Value));
-
-            loggers[$"Env{envNumber}Animals"].Log(env.AnimalsData);
+            env.CollectAnimalData(collector);
+            
+            loggers[$"Env{envNumber}Animals"].Log(env.GetData(DataType.Animal));
         }
 
         private void LogAllPlants()
         {
-            PlantsData.Clear();
+            plantsData.Clear();
 
             // Collect plant properties and add them to data
             collector.CollectData(
@@ -183,25 +173,25 @@ namespace Windore.EvolutionSimulation
                 .Where(obj => obj is Plant)
                 .Select(obj => (Plant)obj)
                 .Select(plant => plant.Properties)
-            ).ToList().ForEach(obj => PlantsData.Add(obj.Key, obj.Value));
+            ).ToList().ForEach(obj => plantsData.Add(obj.Key, obj.Value));
 
             // Collect (plant) organism values e.g age and add them to data
             collector.CollectData(
                 SimulationScene.SimulationObjects
                 .Where(obj => obj is Plant)
                 .Select(obj => (Organism)obj)
-            ).ToList().ForEach(obj => PlantsData.Add(obj.Key, obj.Value));
+            ).ToList().ForEach(obj => plantsData.Add(obj.Key, obj.Value));
 
             // Collect manager values and add them to data
-            collector.CollectSingleValueData(this).ToList().ForEach(obj => PlantsData.Add(obj.Key, obj.Value));
+            collector.CollectSingleValueData(this).ToList().ForEach(obj => plantsData.Add(obj.Key, obj.Value));
 
             // Log collected values
-            loggers["AllPlants"].Log(PlantsData);
+            loggers["AllPlants"].Log(plantsData);
         }
 
         private void LogAllAnimals()
         {
-            AnimalsData.Clear();
+            animalsData.Clear();
 
             // Collect animal properties and add them to data
             collector.CollectData(
@@ -209,20 +199,20 @@ namespace Windore.EvolutionSimulation
                 .Where(obj => obj is Animal)
                 .Select(obj => (Animal)obj)
                 .Select(animal => animal.Properties)
-            ).ToList().ForEach(obj => AnimalsData.Add(obj.Key, obj.Value));
+            ).ToList().ForEach(obj => animalsData.Add(obj.Key, obj.Value));
 
             // Collect (plant) organism values e.g age and add them to data
             collector.CollectData(
                 SimulationScene.SimulationObjects
                 .Where(obj => obj is Animal)
                 .Select(obj => (Organism)obj)
-            ).ToList().ForEach(obj => AnimalsData.Add(obj.Key, obj.Value));
+            ).ToList().ForEach(obj => animalsData.Add(obj.Key, obj.Value));
 
             // Collect manager values and add them to data
-            collector.CollectSingleValueData(this).ToList().ForEach(obj => AnimalsData.Add(obj.Key, obj.Value));
+            collector.CollectSingleValueData(this).ToList().ForEach(obj => animalsData.Add(obj.Key, obj.Value));
 
             // Log collected values
-            loggers["AllAnimals"].Log(AnimalsData);
+            loggers["AllAnimals"].Log(animalsData);
         }
     }
 }
