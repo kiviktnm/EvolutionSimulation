@@ -17,7 +17,7 @@ namespace Windore.EvolutionSimulation.Objects
                 + Properties.EnvironmentToxicityResistance.Value / 2
                 + Properties.TemperatureChangeResistance.Value / 2 * (CurrentSize / 2d)
                 + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentToxicityResistance.Value)
-                + Properties.EnergyProductionInLowNutrientGrounds.Value * 10d
+                + Properties.EnergyProductionInLowNutrientGrounds.Value
                 + Math.Abs(Properties.OptimalTemperature.Value - Environment.Temperature.Value) / Properties.TemperatureChangeResistance.Value * (CurrentSize / 2d));
         }
 
