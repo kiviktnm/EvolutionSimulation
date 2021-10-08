@@ -24,7 +24,7 @@ namespace Windore.EvolutionSimulation
 
         [Setting("Simulation Log Directory", "General")]
         [StringSettingIsPath]
-        public string SimulationLogDirectory { get; set; } = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "EvolutionSimulation/");
+        public string SimulationLogDirectory { get; set; } = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "EvolutionSimulation-Logs/");
 
         #endregion
 
@@ -159,7 +159,7 @@ namespace Windore.EvolutionSimulation
         [Setting("Toxicity Difference Change Per Update", "Side Environment 2 Properties")]
         [DoubleSettingValueLimits(-1, 1)]
         public double S2EnvToxicityCPU { get; set; } = 0.002d;
-        [Setting("Ground Nutrient Content  DifferenceChange Per Update", "Side Environment 2 Properties")]
+        [Setting("Ground Nutrient Content  Difference Change Per Update", "Side Environment 2 Properties")]
         [DoubleSettingValueLimits(-1, 1)]
         public double S2EnvGroundNutrientContentCPU { get; set; } = 0;
 
@@ -175,7 +175,7 @@ namespace Windore.EvolutionSimulation
         public PlantProperties StartingPlantProperties { get; } = new PlantProperties
         {
             AdultSize = new Property(20, 1, 1000, 50),
-            MutationStrength = new Property(1, 0.5, 40, 5),
+            MutationIntensity = new Property(1, 0.5, 40, 5),
             ReproductionEnergy = new Property(50, 0, 100, 50),
             OffspringAmount = new Property(2, 1, 10, 3),
             BackupEnergy = new Property(10, 0, 100, 20),
@@ -191,9 +191,9 @@ namespace Windore.EvolutionSimulation
         [DoubleSettingValueLimits(1, 1000)]
         public double AdultSizePP { get => StartingPlantProperties.AdultSize.Value; set => StartingPlantProperties.AdultSize.Value = value; }
 
-        [Setting("Mutation Strength", "Plant Starting Properties")]
+        [Setting("Mutation Intensity", "Plant Starting Properties")]
         [DoubleSettingValueLimits(0.5, 40)]
-        public double MutationStrengthPP { get => StartingPlantProperties.MutationStrength.Value; set => StartingPlantProperties.MutationStrength.Value = value; }
+        public double MutationStrengthPP { get => StartingPlantProperties.MutationIntensity.Value; set => StartingPlantProperties.MutationIntensity.Value = value; }
 
         [Setting("Reproduction Energy", "Plant Starting Properties")]
         [DoubleSettingValueLimits(0, 100)]
@@ -239,7 +239,7 @@ namespace Windore.EvolutionSimulation
         public AnimalProperties StartingAnimalProperties { get; } = new AnimalProperties
         {
             AdultSize = new Property(20, 1, 1000, 50),
-            MutationStrength = new Property(1, 0.5, 40, 5),
+            MutationIntensity = new Property(1, 0.5, 40, 5),
             ReproductionEnergy = new Property(50, 0, 100, 50),
             OffspringAmount = new Property(2, 1, 10, 3),
             BackupEnergy = new Property(10, 0, 100, 20),
@@ -262,7 +262,7 @@ namespace Windore.EvolutionSimulation
 
         [Setting("Mutation Strength", "Animal Starting Properties")]
         [DoubleSettingValueLimits(0.5, 40)]
-        public double MutationStrengthAP { get => StartingAnimalProperties.MutationStrength.Value; set => StartingAnimalProperties.MutationStrength.Value = value; }
+        public double MutationStrengthAP { get => StartingAnimalProperties.MutationIntensity.Value; set => StartingAnimalProperties.MutationIntensity.Value = value; }
 
         [Setting("Offspring Amount", "Animal Starting Properties")]
         [DoubleSettingValueLimits(0, 10)]

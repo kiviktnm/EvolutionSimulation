@@ -12,7 +12,7 @@
         Title="Evolution Simulation">
         
     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10">
-        <TextBlock Text="Evolution Simulation I" FontSize="25" TextAlignment="Center"/>
+        <TextBlock Text="Evolution Simulation" FontSize="25" TextAlignment="Center"/>
         <Button Content="Start" Width="200" Height="30" Click="OnStartBtnClick"/>
         <Button Content="Settings" Width="200" Height="30" Click="OnSettingsBtnClick"/>
         <Button Content="Load settings from a file" Width="200" Height="30" Click="OnLoadSettingsFileBtnClick"/>

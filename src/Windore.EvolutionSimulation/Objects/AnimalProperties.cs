@@ -60,7 +60,7 @@ namespace Windore.EvolutionSimulation.Objects
             {
                 // Copies the dictionary while mutating all properties
                 Properties = Properties.ToDictionary(entry => entry.Key,
-                    entry => entry.Value.CreateMutated(new Percentage(MutationStrength.Value)))
+                    entry => entry.Value.CreateMutated(new Percentage(MutationIntensity.Value)))
             };
             return newProperties;
         }

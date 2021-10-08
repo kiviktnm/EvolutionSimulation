@@ -16,8 +16,8 @@ namespace Windore.EvolutionSimulation.Objects
         /// <summary>
         /// Gets or sets the property defining the strength of any mutation affecting any property
         /// </summary>
-        [DataPoint("MutationStrength")]
-        public Property MutationStrength { get => Properties["Mutation Strength"]; set => Properties["Mutation Strength"] = value; }
+        [DataPoint("MutationIntensity")]
+        public Property MutationIntensity { get => Properties["Mutation Intensity"]; set => Properties["Mutation Intensity"] = value; }
 
         /// <summary>
         /// Gets or sets the property defining the energy the organism uses for reproduction
