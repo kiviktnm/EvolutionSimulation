@@ -1,4 +1,5 @@
 using System;
+using Windore.Simulations2D.Util.SMath;
 
 namespace Windore.EvolutionSimulation
 {
@@ -11,7 +12,10 @@ namespace Windore.EvolutionSimulation
         {
             get
             {
-                if (hasParent) return ParentChangingVariable.Value + diffFromParent;
+                if (hasParent) 
+                {
+                    return SMath.Clamp(ParentChangingVariable.Value + diffFromParent, ParentChangingVariable.MinValue, ParentChangingVariable.MaxValue);
+                }
                 else return diffFromParent;
             }
             set
@@ -84,14 +88,16 @@ namespace Windore.EvolutionSimulation
                     diffFromParent = -MinValue;
                 else
                     diffFromParent = MinValue;
+
+                Reverse();
             }
 
             // A child changing variable cannot have greater min or max values than its parent, but it should not reverse its change in this case
-            if (Value > ParentChangingVariable.MaxValue)
-                Value = ParentChangingVariable.MaxValue;
+            //if (Value > ParentChangingVariable.MaxValue)
+            //    Value = ParentChangingVariable.MaxValue;
 
-            if (Value < ParentChangingVariable.MinValue)
-                Value = ParentChangingVariable.MinValue;
+            //if (Value < ParentChangingVariable.MinValue)
+            //    Value = ParentChangingVariable.MinValue;
         }
 
         private void DefaultUpdateChecks()
