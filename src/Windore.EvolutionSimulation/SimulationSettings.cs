@@ -24,7 +24,7 @@ namespace Windore.EvolutionSimulation
 
         [Setting("Simulation Log Directory", "General")]
         [StringSettingIsPath]
-        public string SimulationLogDirectory { get; set; } = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "EvolutionSimulation-Logs/");
+        public string SimulationLogDirectory { get; set; } = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "EvolutionSimulationLogs/");
 
         #endregion
 
@@ -53,7 +53,7 @@ namespace Windore.EvolutionSimulation
         public double BaseEnvGroundNutrientContentCPU { get; set; } = 0;
 
         [Setting("Reverse Value Changing", "Base Environment Properties")]
-        public bool BaseEnvReverseChanging { get; set; } = false;
+        public bool BaseEnvReverseChanging { get; set; } = true;
 
         #endregion
 
