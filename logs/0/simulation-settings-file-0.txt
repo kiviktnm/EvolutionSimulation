@@ -1,0 +1,76 @@
+:Animal Starting Properties:
+Adult Size=20
+Backup Energy=10
+Carnivority Tendency=50
+Defensive Capability=2
+Environment Toxicity Resistance=0
+Eyesight=20
+Food Digesting Capability=10
+Movement Speed=20
+Mutation Strength=1
+Offensive Capability=2
+Offspring Amount=2
+Optimal Temperature=30
+Plant Toxicity Resistance=0
+Reproduction Energy=50
+Temperature Change Resistance=5
+Threat Consideration Limit=10
+:Base Environment Properties:
+Ground Nutrient Content=10
+Ground Nutrient Content Change Per Update=0
+Reverse Value Changing=true
+Temperature=30
+Temperature Change Per Update=0.0002
+Toxicity=10
+Toxicity Change Per Update=0
+:Center Environment Properties:
+Ground Nutrient Content Difference Change Per Update=-0.0001
+Ground Nutrient Content Difference From Base=0
+Ground Nutrient Content Max Difference From Base=10
+Reverse Difference Value Changing=true
+Temperature Difference Change Per Update=0
+Temperature Difference From Base=0
+Temperature Max Difference From Base=0
+Toxicity Difference Change Per Update=0
+Toxicity Difference From Base=0
+Toxicity Max Difference From Base=0
+:General:
+Mutation Probability=10
+Randomness Seed (0 for random seed)=1632783368
+Simulation Area Side Length=1500
+Simulation Log Directory=\\ad.helsinki.fi\home\a\admin_pk\Documents\EvolutionSimulationLogs/
+Start Paused=false
+:Plant Starting Properties:
+Adult Size=20
+Backup Energy=10
+Energy Production In Low Nutrient Grounds=2
+Environment Toxicity Resistance=0
+Mutation Intensity=1
+Offspring Amount=2
+Optimal Temperature=30
+Reproduction Area=40
+Reproduction Energy=50
+Temperature Change Resistance=3
+Toxicity=0
+:Side Environment 1 Properties:
+Ground Nutrient Content Difference Change Per Update=0
+Ground Nutrient Content Difference From Base=0
+Ground Nutrient Content Max Difference From Base=0
+Reverse Difference Value Changing=true
+Temperature Difference Change Per Update=-0.002
+Temperature Difference From Base=5
+Temperature Max Difference From Base=20
+Toxicity Difference Change Per Update=0
+Toxicity Difference From Base=0
+Toxicity Max Difference From Base=0
+:Side Environment 2 Properties:
+Ground Nutrient Content  Difference Change Per Update=0
+Ground Nutrient Content Difference From Base=0
+Ground Nutrient Content Max Difference From Base=0
+Reverse Difference Value Changing=true
+Temperature Difference Change Per Update=0
+Temperature Difference From Base=0
+Temperature Max Difference From Base=0
+Toxicity Difference Change Per Update=0.002
+Toxicity Difference From Base=-10
+Toxicity Max Difference From Base=60
