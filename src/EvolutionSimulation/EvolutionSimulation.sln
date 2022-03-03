@@ -9,9 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Windore.Simulations2D", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Windore.Simulations2D.GUI", "..\Simulations2D\src\Windore.Simulations2D.GUI\Windore.Simulations2D.GUI.csproj", "{BAB78A2B-CB26-4BCA-8536-90BBA5A5BF3C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Windore.Settings.Base", "..\Settings-v2\src\Windore.Settings.Base\Windore.Settings.Base.csproj", "{03B31744-F6E5-4B01-AAC5-62155A23875B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Windore.Settings.Base", "..\Settings\src\Windore.Settings.Base\Windore.Settings.Base.csproj", "{03B31744-F6E5-4B01-AAC5-62155A23875B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Windore.Settings.GUI", "..\Settings-v2\src\Windore.Settings.GUI\Windore.Settings.GUI.csproj", "{9BA40405-8609-43AC-8238-77BD533BB132}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Windore.Settings.GUI", "..\Settings\src\Windore.Settings.GUI\Windore.Settings.GUI.csproj", "{9BA40405-8609-43AC-8238-77BD533BB132}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
