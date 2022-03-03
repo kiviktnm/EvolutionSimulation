@@ -1,8 +1,6 @@
-[submodule "Simulations2D"]
-	path = Simulations2D
+[submodule "src/Settings"]
+	path = src/Settings
+	url = https://github.com/Windore/Settings.git
+[submodule "src/Simulations2D"]
+	path = src/Simulations2D
 	url = https://github.com/Windore/Simulations2D.git
-	update = merge
-[submodule "Settings-v2"]
-	path = Settings-v2
-	url = https://github.com/Windore/Settings-v2.git
-	update = merge
