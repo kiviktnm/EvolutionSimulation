@@ -16,8 +16,8 @@ namespace Windore.EvolutionSimulation.Objects
         /// <summary>
         /// Gets or sets the property defining the strength of any mutation affecting any property
         /// </summary>
-        [DataPoint("MutationIntensity")]
-        public Property MutationIntensity { get => Properties["Mutation Intensity"]; set => Properties["Mutation Intensity"] = value; }
+        [DataPoint("MutationEffectMagnitude")]
+        public Property MutationEffectMagnitude { get => Properties["Mutation Effect Magnitude"]; set => Properties["Mutation Effect Magnitude"] = value; }
 
         /// <summary>
         /// Gets or sets the property defining the energy the organism uses for reproduction
@@ -52,7 +52,7 @@ namespace Windore.EvolutionSimulation.Objects
         /// <summary>
         /// Gets or sets the property defining the resistance to changes in temperature
         /// </summary>
-        [DataPoint("EnvironmentToxicityResistance")]
-        public Property EnvironmentToxicityResistance { get => Properties["Environment Toxicity Resistance"]; set => Properties["Environment Toxicity Resistance"] = value; }
+        [DataPoint("EnvironmentalToxinResistance")]
+        public Property EnvironmentalToxinResistance { get => Properties["Environmental Toxin Resistance"]; set => Properties["Environmental Toxin Resistance"] = value; }
     }
 }

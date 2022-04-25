@@ -115,9 +115,9 @@ namespace Windore.EvolutionSimulation
         private void AddEnvironmentToPanel(StackPanel panel, Objects.Environment env)
         {
             panel.Children.Add(new TextBlock { Text = "Environment", Margin = new Avalonia.Thickness(5, 5, 5, 0), FontSize = 16, FontWeight = Avalonia.Media.FontWeight.Bold });
-            panel.Children.Add(CreateNewSelectedPanelText($"Toxicity: {Math.Round(env.Toxicity.Value, 3)}"));
+            panel.Children.Add(CreateNewSelectedPanelText($"Environmental Toxin Content: {Math.Round(env.Toxicity.Value, 3)}"));
             panel.Children.Add(CreateNewSelectedPanelText($"Temperature: {Math.Round(env.Temperature.Value, 3)}"));
-            panel.Children.Add(CreateNewSelectedPanelText($"Ground Nutrient Content: {Math.Round(env.GroundNutrientContent.Value, 3)}"));
+            panel.Children.Add(CreateNewSelectedPanelText($"Soil Nutrient Content: {Math.Round(env.SoilNutrientContent.Value, 3)}"));
             panel.Children.Add(CreateNewSelectedPanelText($"Plant Amount in Env: {env.PlantAmount}"));
             panel.Children.Add(CreateNewSelectedPanelText($"Animal Amount in Env: {env.AnimalAmount}"));
 
@@ -210,26 +210,26 @@ namespace Windore.EvolutionSimulation
 
             SimulationManager.Envs[0] = new Objects.Environment(Env0Position, CenterEnvWidth, CenterEnvHeight)
             {
-                Toxicity = new ChangingVariable(Settings.CEnvToxicity, 0, Settings.CEnvToxicityMaxDiff, Settings.CEnvToxicityCPU, SimulationManager.BaseEnvToxicity) { ShouldReverse = Settings.CEnvReverseChanging },
+                Toxicity = new ChangingVariable(Settings.CEnvEnvironmentalToxinContent, 0, Settings.CEnvEnvironmentalToxinContentMaxDiff, Settings.CEnvEnvironmentalToxinContentCPU, SimulationManager.BaseEnvToxicity) { ShouldReverse = Settings.CEnvReverseChanging },
                 Temperature = new ChangingVariable(Settings.CEnvTemperature, 0, Settings.CEnvTemperatureMaxDiff, Settings.CEnvTemperatureCPU, SimulationManager.BaseEnvTemperature) { ShouldReverse = Settings.CEnvReverseChanging },
-                GroundNutrientContent = new ChangingVariable(Settings.CEnvGroundNutrientContent, 0, Settings.CEnvGroundNutrientContentMaxDiff, Settings.CEnvGroundNutrientContentCPU, SimulationManager.BaseEnvGroundNutrientContent) { ShouldReverse = Settings.CEnvReverseChanging },
+                SoilNutrientContent = new ChangingVariable(Settings.CEnvSoilNutrientContent, 0, Settings.CEnvSoilNutrientContentMaxDiff, Settings.CEnvSoilNutrientContentCPU, SimulationManager.BaseEnvSoilNutrientContent) { ShouldReverse = Settings.CEnvReverseChanging },
                 Name = "Center Environment"
             };
 
             SimulationManager.Envs[1] = new Objects.Environment(env1Position, sideEnvsWidth, sideEnvsHeight)
             {
-                Toxicity = new ChangingVariable(Settings.S1EnvToxicity, 0, Settings.S1EnvToxicityMaxDiff, Settings.S1EnvToxicityCPU, SimulationManager.BaseEnvToxicity) { ShouldReverse = Settings.S1EnvReverseChanging },
+                Toxicity = new ChangingVariable(Settings.S1EnvEnvironmentalToxinContent, 0, Settings.S1EnvEnvironmentalToxinContentMaxDiff, Settings.S1EnvEnvironmentalToxinContentCPU, SimulationManager.BaseEnvToxicity) { ShouldReverse = Settings.CEnvReverseChanging },
                 Temperature = new ChangingVariable(Settings.S1EnvTemperature, 0, Settings.S1EnvTemperatureMaxDiff, Settings.S1EnvTemperatureCPU, SimulationManager.BaseEnvTemperature) { ShouldReverse = Settings.S1EnvReverseChanging },
-                GroundNutrientContent = new ChangingVariable(Settings.S1EnvGroundNutrientContent, 0, Settings.S1EnvGroundNutrientContentMaxDiff, Settings.S1EnvGroundNutrientContentCPU, SimulationManager.BaseEnvGroundNutrientContent) { ShouldReverse = Settings.S1EnvReverseChanging },
+                SoilNutrientContent = new ChangingVariable(Settings.S1EnvSoilNutrientContent, 0, Settings.S1EnvSoilNutrientContentMaxDiff, Settings.S1EnvSoilNutrientContentCPU, SimulationManager.BaseEnvSoilNutrientContent) { ShouldReverse = Settings.S1EnvReverseChanging },
                 Name = "Side Environment 1"
 
             };
 
             SimulationManager.Envs[2] = new Objects.Environment(env2Position, sideEnvsWidth, sideEnvsHeight)
             {
-                Toxicity = new ChangingVariable(Settings.S2EnvToxicity, 0, Settings.S2EnvToxicityMaxDiff, Settings.S2EnvToxicityCPU, SimulationManager.BaseEnvToxicity) { ShouldReverse = Settings.S2EnvReverseChanging },
+                Toxicity = new ChangingVariable(Settings.S2EnvEnvironmentalToxinContent, 0, Settings.S2EnvEnvironmentalToxinContentMaxDiff, Settings.S2EnvEnvironmentalToxinContentCPU, SimulationManager.BaseEnvToxicity) { ShouldReverse = Settings.CEnvReverseChanging },
                 Temperature = new ChangingVariable(Settings.S2EnvTemperature, 0, Settings.S2EnvTemperatureMaxDiff, Settings.S2EnvTemperatureCPU, SimulationManager.BaseEnvTemperature) { ShouldReverse = Settings.S2EnvReverseChanging },
-                GroundNutrientContent = new ChangingVariable(Settings.S2EnvGroundNutrientContent, 0, Settings.S2EnvGroundNutrientContentMaxDiff, Settings.S2EnvGroundNutrientContentCPU, SimulationManager.BaseEnvGroundNutrientContent) { ShouldReverse = Settings.S2EnvReverseChanging },
+                SoilNutrientContent = new ChangingVariable(Settings.S2EnvSoilNutrientContent, 0, Settings.S2EnvSoilNutrientContentMaxDiff, Settings.S2EnvSoilNutrientContentCPU, SimulationManager.BaseEnvSoilNutrientContent) { ShouldReverse = Settings.S2EnvReverseChanging },
                 Name = "Side Environment 2"
             };
 

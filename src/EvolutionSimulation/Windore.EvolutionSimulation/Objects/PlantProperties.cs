@@ -19,10 +19,10 @@ namespace Windore.EvolutionSimulation.Objects
         public Property ReproductionArea { get => Properties["Reproduction Area"]; set => Properties["Reproduction Area"] = value; }
 
         /// <summary>
-        /// Gets or sets the property defining the energy production in low nutrient grounds
+        /// Gets or sets the property defining the Energy Production In Low Nutrient Soil
         /// </summary>
-        [DataPoint("EnergyProductionInLowNutrientGrounds")]
-        public Property EnergyProductionInLowNutrientGrounds { get => Properties["Energy Production In Low Nutrient Grounds"]; set => Properties["Energy Production In Low Nutrient Grounds"] = value; }
+        [DataPoint("EnergyProductionInLowNutrientSoil")]
+        public Property EnergyProductionInLowNutrientSoil { get => Properties["Energy Production In Low Nutrient Soil"]; set => Properties["Energy Production In Low Nutrient Soil"] = value; }
 
         /// <inheritdoc/>
         public PlantProperties CreateMutated()
@@ -31,7 +31,7 @@ namespace Windore.EvolutionSimulation.Objects
             {
                 // Copies the dictionary while mutating all properties
                 Properties = Properties.ToDictionary(entry => entry.Key,
-                    entry => entry.Value.CreateMutated(new Percentage(MutationIntensity.Value)))
+                    entry => entry.Value.CreateMutated(new Percentage(MutationEffectMagnitude.Value)))
             };
             return newProperties;
         }

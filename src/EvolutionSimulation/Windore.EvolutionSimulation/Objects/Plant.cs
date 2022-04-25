@@ -14,10 +14,10 @@ namespace Windore.EvolutionSimulation.Objects
         {
             get => Simulation.ENERGY_COEFFICIENT * (0.5d * CurrentSize
                 + Properties.Toxicity.Value * CurrentSize
-                + Properties.EnvironmentToxicityResistance.Value / 2
+                + Properties.EnvironmentalToxinResistance.Value / 2
                 + Properties.TemperatureChangeResistance.Value / 2 * (CurrentSize / 2d)
-                + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentToxicityResistance.Value)
-                + Properties.EnergyProductionInLowNutrientGrounds.Value
+                + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentalToxinResistance.Value)
+                + Properties.EnergyProductionInLowNutrientSoil.Value
                 + Math.Abs(Properties.OptimalTemperature.Value - Environment.Temperature.Value) / Properties.TemperatureChangeResistance.Value * (CurrentSize / 2d));
         }
 
@@ -25,7 +25,7 @@ namespace Windore.EvolutionSimulation.Objects
         {
             get
             {
-                double baseProduction = Math.Max(Properties.EnergyProductionInLowNutrientGrounds.Value, Environment.GroundNutrientContent.Value) * Math.Pow(2d / 7d * CurrentSize, 2);
+                double baseProduction = Math.Max(Properties.EnergyProductionInLowNutrientSoil.Value, Environment.SoilNutrientContent.Value) * Math.Pow(2d / 7d * CurrentSize, 2);
                 double production = baseProduction;
 
                 foreach (Plant plant in GetSimulationObjectsInRange(CurrentSize * 2).Where(obj => obj is Plant))

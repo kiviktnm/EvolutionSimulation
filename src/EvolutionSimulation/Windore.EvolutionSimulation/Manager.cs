@@ -16,9 +16,9 @@ namespace Windore.EvolutionSimulation
         private Dictionary<string, DataCollector.Data> plantsData = new Dictionary<string, DataCollector.Data>();
         private Dictionary<string, DataCollector.Data> animalsData = new Dictionary<string, DataCollector.Data>();
 
-        public ChangingVariable BaseEnvToxicity { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvToxicity, 0, 100, Simulation.Ins.Settings.BaseEnvToxicityCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
+        public ChangingVariable BaseEnvToxicity { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvEnvironmentalToxinContent, 0, 100, Simulation.Ins.Settings.BaseEnvEnvironmentalToxinContentCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
         public ChangingVariable BaseEnvTemperature { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvTemperature, 0, 100, Simulation.Ins.Settings.BaseEnvTemperatureCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
-        public ChangingVariable BaseEnvGroundNutrientContent { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvGroundNutrientContent, 0, 20, Simulation.Ins.Settings.BaseEnvGroundNutrientContentCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
+        public ChangingVariable BaseEnvSoilNutrientContent { get; } = new ChangingVariable(Simulation.Ins.Settings.BaseEnvSoilNutrientContent, 0, 20, Simulation.Ins.Settings.BaseEnvSoilNutrientContentCPU) { ShouldReverse = Simulation.Ins.Settings.BaseEnvReverseChanging };
 
         public Objects.Environment[] Envs { get; set; } = new Objects.Environment[3];
 
@@ -88,7 +88,7 @@ namespace Windore.EvolutionSimulation
         {
             BaseEnvToxicity.Update();
             BaseEnvTemperature.Update();
-            BaseEnvGroundNutrientContent.Update();
+            BaseEnvSoilNutrientContent.Update();
         }
 
         public override void AfterUpdate()

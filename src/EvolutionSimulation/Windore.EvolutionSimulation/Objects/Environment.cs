@@ -17,20 +17,20 @@ namespace Windore.EvolutionSimulation.Objects
         public string Name { get; set; }
         public ChangingVariable Toxicity { get; set; }
         public ChangingVariable Temperature { get; set; }
-        public ChangingVariable GroundNutrientContent { get; set; }
+        public ChangingVariable SoilNutrientContent { get; set; }
 
-        [DataPoint("EnvironvementAnimalAmount")]
+        [DataPoint("EnvironmentAnimalAmount")]
         public int AnimalAmount { get; private set; }
-        [DataPoint("EnvironvementPlantAmount")]
+        [DataPoint("EnvironmentPlantAmount")]
         public int PlantAmount { get; private set; }
 
         // These properties exist just for data collection since ChangingVariable cannot be a DataPoint.
-        [DataPoint("EnvironvementToxicity")]
+        [DataPoint("EnvironmentalToxinContent")]
         public double ToxicityDC { get => Toxicity.Value; }
-        [DataPoint("EnvironvementTemperature")]
+        [DataPoint("EnvironmentTemperature")]
         public double TemperatureDC { get => Temperature.Value; }
-        [DataPoint("EnvironvementGroundNutrientContent")]
-        public double GroundNutrientContentDC { get => GroundNutrientContent.Value; }
+        [DataPoint("EnvironmentSoilNutrientContent")]
+        public double SoilNutrientContentDC { get => SoilNutrientContent.Value; }
 
         public List<SimulationObject> OrganismsCurrentlyInEnv { get; set; } = new List<SimulationObject>();
 
@@ -40,9 +40,9 @@ namespace Windore.EvolutionSimulation.Objects
         {
             Toxicity.Update();
             Temperature.Update();
-            GroundNutrientContent.Update();
+            SoilNutrientContent.Update();
 
-            Color = new Color((byte)(255 * (Temperature.Value / 100)), (byte)(255 * (GroundNutrientContent.Value / 20)), (byte)(255 * (Toxicity.Value / 100)));
+            Color = new Color((byte)(255 * (Temperature.Value / 100)), (byte)(255 * (SoilNutrientContent.Value / 20)), (byte)(255 * (Toxicity.Value / 100)));
 
             GetOrganismsInEnv();
         }

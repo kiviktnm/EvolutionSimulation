@@ -49,13 +49,13 @@ namespace Windore.EvolutionSimulation.Objects
             get => Simulation.ENERGY_COEFFICIENT * (0.5d * CurrentSize
                 + Properties.MovementSpeed.Value / 2d
                 + Properties.Eyesight.Value / 8d
-                + Properties.OffensiveCapability.Value * CurrentSize / 3d
-                + Properties.DefensiveCapability.Value * CurrentSize / 3d
+                + Properties.AttackPower.Value * CurrentSize / 3d
+                + Properties.DefensePower.Value * CurrentSize / 3d
                 + Properties.PlantToxicityResistance.Value / 2d * CurrentSize
-                + Properties.FoodDigestingCapability.Value * CurrentSize / 100d
-                + Properties.EnvironmentToxicityResistance.Value / 2
+                + Properties.FoodDigestingSpeed.Value * CurrentSize / 100d
+                + Properties.EnvironmentalToxinResistance.Value / 2
                 + Properties.TemperatureChangeResistance.Value / 2 * (CurrentSize / 2d)
-                + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentToxicityResistance.Value) / 10d
+                + Math.Max(0, Environment.Toxicity.Value - Properties.EnvironmentalToxinResistance.Value) / 10d
                 + Math.Abs(Properties.OptimalTemperature.Value - Environment.Temperature.Value) / Properties.TemperatureChangeResistance.Value * (CurrentSize / 2d)
                 + Injuries);
         }
@@ -67,7 +67,7 @@ namespace Windore.EvolutionSimulation.Objects
 
                 // progressive food digesting
                 Percentage foodStoredPercent = Percentage.FromDouble(1d + StoredFood / FoodStoringCapacity);
-                double extraAmountDigested = StoredFood * new Percentage(Properties.FoodDigestingCapability.Value) * foodStoredPercent;
+                double extraAmountDigested = StoredFood * new Percentage(Properties.FoodDigestingSpeed.Value) * foodStoredPercent;
 
                 double amountDigested = EnergyConsumption + extraAmountDigested;
                 if (amountDigested > StoredFood)
@@ -90,9 +90,9 @@ namespace Windore.EvolutionSimulation.Objects
 
         public Animal(Point position, double startingEnergy, double startingSize, AnimalProperties properties) : base(new Shape(position, 1, 1, false),
                     new Color(
-                        (byte)(255 - (155 * properties.CarnivorityTendency.Value / properties.CarnivorityTendency.MaxValue)),
+                        (byte)(255 - (155 * properties.PredationTendency.Value / properties.PredationTendency.MaxValue)),
                         0,
-                        (byte)((255 * properties.CarnivorityTendency.Value / properties.CarnivorityTendency.MaxValue) - 100)),
+                        (byte)((255 * properties.PredationTendency.Value / properties.PredationTendency.MaxValue) - 100)),
                     properties)
         {
             Properties = properties;
@@ -189,8 +189,8 @@ namespace Windore.EvolutionSimulation.Objects
 
         private void LookForFood()
         {
-            bool pureCarnivore = Properties.CarnivorityTendency.Value > 75;
-            bool pureHerbivore = Properties.CarnivorityTendency.Value < 25;
+            bool pureCarnivore = Properties.PredationTendency.Value > 75;
+            bool pureHerbivore = Properties.PredationTendency.Value < 25;
 
             Animal animalFoodCanditate = LookForAnimalFood();
             Plant plantFoodCanditate = LookForPlantFood();
@@ -215,7 +215,7 @@ namespace Windore.EvolutionSimulation.Objects
                 return;
             }
 
-            if (Simulation.Ins.SimulationRandom.Boolean(new Percentage(Properties.CarnivorityTendency.Value)))
+            if (Simulation.Ins.SimulationRandom.Boolean(new Percentage(Properties.PredationTendency.Value)))
             {
                 currentTarget = animalFoodCanditate;
                 CurrentObjective = AnimalObjective.EatAnimal;
@@ -295,7 +295,7 @@ namespace Windore.EvolutionSimulation.Objects
 
             if (Position.DistanceToSqr(currentPlantTarget.Position) == 0)
             {
-                double amountEaten = Eat(currentPlantTarget, new Percentage(100 - Properties.CarnivorityTendency.Value));
+                double amountEaten = Eat(currentPlantTarget, new Percentage(100 - Properties.PredationTendency.Value));
                 double poisonEaten = currentPlantTarget.Properties.Toxicity.Value * amountEaten;
 
                 Injuries += Math.Max(0, poisonEaten - (Properties.PlantToxicityResistance.Value * CurrentSize));
@@ -361,8 +361,8 @@ namespace Windore.EvolutionSimulation.Objects
         // Returns a number greater than 0 if an animal is a threat. A larger number indicates a bigger threat
         private double GetThreatValue(Animal animal)
         {
-            double thisThreatValue = CurrentSize * (Properties.OffensiveCapability.Value + Properties.DefensiveCapability.Value);
-            double animalThreatValue = animal.CurrentSize * (animal.Properties.OffensiveCapability.Value + animal.Properties.DefensiveCapability.Value);
+            double thisThreatValue = CurrentSize * (Properties.AttackPower.Value + Properties.DefensePower.Value);
+            double animalThreatValue = animal.CurrentSize * (animal.Properties.AttackPower.Value + animal.Properties.DefensePower.Value);
 
             return (animalThreatValue - thisThreatValue) - Properties.ThreatConsiderationLimit.Value;
         }
@@ -375,12 +375,12 @@ namespace Windore.EvolutionSimulation.Objects
 
         private void Fight()
         {
-            currentTarget.Injuries += Math.Max((3 * CurrentSize * Properties.OffensiveCapability.Value) / (2 * currentTarget.CurrentSize * currentTarget.Properties.DefensiveCapability.Value), 0.1);
+            currentTarget.Injuries += Math.Max((3 * CurrentSize * Properties.AttackPower.Value) / (2 * currentTarget.CurrentSize * currentTarget.Properties.DefensePower.Value), 0.1);
 
             if (currentTarget.IsRemoved)
             {
-                if (Properties.CarnivorityTendency.Value > 25)
-                    Eat(currentTarget, new Percentage(Properties.CarnivorityTendency.Value));
+                if (Properties.PredationTendency.Value > 25)
+                    Eat(currentTarget, new Percentage(Properties.PredationTendency.Value));
 
                 CurrentObjective = AnimalObjective.FindFood;
             }

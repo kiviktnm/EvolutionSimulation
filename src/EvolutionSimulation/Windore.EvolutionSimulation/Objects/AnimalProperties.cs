@@ -15,8 +15,8 @@ namespace Windore.EvolutionSimulation.Objects
         /// <summary>
         /// Gets or sets the property defining the probability of preferring an animal food source
         /// </summary>
-        [DataPoint("CarnivorityTendency")]
-        public Property CarnivorityTendency { get => Properties["Carnivority Tendency"]; set => Properties["Carnivority Tendency"] = value; }
+        [DataPoint("PredationTendency")]
+        public Property PredationTendency { get => Properties["Predation Tendency"]; set => Properties["Predation Tendency"] = value; }
 
         /// <summary>
         /// Gets or sets the property defining the vision range
@@ -27,17 +27,17 @@ namespace Windore.EvolutionSimulation.Objects
         /// <summary>
         /// Gets or sets the property defining the capability to cause harm to other animals
         /// </summary>
-        [DataPoint("OffensiveCapability")]
-        public Property OffensiveCapability { get => Properties["Offensive Capability"]; set => Properties["Offensive Capability"] = value; }
+        [DataPoint("AttackPower")]
+        public Property AttackPower { get => Properties["Attack Power"]; set => Properties["Attack Power"] = value; }
 
         /// <summary>
         /// Gets or sets the property defining the capability to mitigate harm caused by other animals
         /// </summary>
-        [DataPoint("DefensiveCapability")]
-        public Property DefensiveCapability { get => Properties["Defensive Capability"]; set => Properties["Defensive Capability"] = value; }
+        [DataPoint("DefensePower")]
+        public Property DefensePower { get => Properties["Defense Power"]; set => Properties["Defense Power"] = value; }
 
         /// <summary>
-        /// Gets or sets the property defining the amount larger an animals offensive and defensive capability has to be to be considered a threat.
+        /// Gets or sets the property defining the amount larger an animals offensive and Defense Power has to be to be considered a threat.
         /// </summary>
         [DataPoint("ThreatConsiderationLimit")]
         public Property ThreatConsiderationLimit { get => Properties["Threat Consideration Limit"]; set => Properties["Threat Consideration Limit"] = value; }
@@ -51,8 +51,8 @@ namespace Windore.EvolutionSimulation.Objects
         /// <summary>
         /// Gets or sets the property defining the animal's ability to store food and to digest that stored food
         /// </summary>
-        [DataPoint("FoodDigestingCapability")]
-        public Property FoodDigestingCapability { get => Properties["Food Digesting Capability"]; set => Properties["Food Digesting Capability"] = value; }
+        [DataPoint("FoodDigestingSpeed")]
+        public Property FoodDigestingSpeed { get => Properties["Food Digesting Speed"]; set => Properties["Food Digesting Speed"] = value; }
 
         public AnimalProperties CreateMutated()
         {
@@ -60,7 +60,7 @@ namespace Windore.EvolutionSimulation.Objects
             {
                 // Copies the dictionary while mutating all properties
                 Properties = Properties.ToDictionary(entry => entry.Key,
-                    entry => entry.Value.CreateMutated(new Percentage(MutationIntensity.Value)))
+                    entry => entry.Value.CreateMutated(new Percentage(MutationEffectMagnitude.Value)))
             };
             return newProperties;
         }
