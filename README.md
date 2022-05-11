@@ -10,8 +10,8 @@ the values of its properties.
 
 In the school project I've written about this program I refer to
 plants as producers (tuottajat) and animals as consumers (kuluttajat).
-While those terms are more accurate, here, I will use the terms plants
-and animals because I believe that those terms introduce more clarity 
+While those terms are more accurate, I will use the terms plants and 
+animals here because I believe that those terms introduce more clarity 
 to what the two types of organisms do.
 
 See [documentation](docs/documentation.md) for more information.
