@@ -16,6 +16,10 @@ to what the two types of organisms do.
 
 See [documentation](docs/documentation.md) for more information.
 
+## Installation
+
+Download the latest release [here](https://github.com/Windore/EvolutionSimulation/releases/download/v1.0.0/EvolutionSimulation1.0.0.zip).
+
 ## License
 
 This project is licensed under the MIT License.  See
