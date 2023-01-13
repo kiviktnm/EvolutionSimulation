@@ -5,7 +5,7 @@ This program simulates organisms in three different changing
 environments. The organisms are divided into two types, plants and
 animals.  Each organism tries to reproduce by gaining enough energy
 for doing that. Reproduction is asexual and every time an organism
-reproduces there is a set chance for the organism mutating changing
+reproduces there is a set chance for the organism mutating and changing
 the values of its properties.
 
 In the school project I've written about this program I refer to
@@ -15,7 +15,6 @@ animals here because I believe that those terms introduce more clarity
 to what the two types of organisms do.
 
 See [documentation](docs/documentation.md) for more information.
-Note: that the documentation is still being written.
 
 ## License
 
